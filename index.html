@@ -3,26 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FatturaPA E-Invoicing Flow | Interactive Architecture</title>
+  <title>FatturaPA & Pagero E-Invoicing Flow | Interactive Architecture</title>
   <style>
     :root {
-      --bg-canvas: #090d16;
-      --bg-surface: #111827;
-      --bg-surface-hover: #182235;
-      --bg-active: #0c2d48;
-      --border-subtle: rgba(148, 163, 184, 0.14);
-      --border-hover: rgba(148, 163, 184, 0.32);
-      --border-active: #38bdf8;
-      --border-error: #f87171;
-      --bg-error: #3b1219;
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
+      --bg-canvas: #f8faf8;
+      --bg-surface: #ffffff;
+      --bg-surface-hover: #fff7ed;
+      --bg-active: #ecfdf5;
+      --border-subtle: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --border-active: #15803d;
+      --border-pagero: #ea580c;
+      --border-error: #dc2626;
+      --bg-error: #fef2f2;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
       --text-muted: #64748b;
-      --text-accent: #bae6fd;
-      --text-error-accent: #fecaca;
-      --accent-glow: rgba(56, 189, 248, 0.16);
-      --error-glow: rgba(248, 113, 113, 0.18);
-      --success: #34d399;
+      --text-accent: #166534;
+      --text-pagero-accent: #c2410c;
+      --text-error-accent: #991b1b;
+      --accent-glow: rgba(21, 128, 61, 0.14);
+      --pagero-glow: rgba(234, 88, 12, 0.14);
+      --error-glow: rgba(220, 38, 38, 0.14);
+      --success: #16a34a;
+      --orange: #ea580c;
+      --orange-light: #fff7ed;
+      --green: #15803d;
+      --green-light: #f0fdf4;
     }
 
     * {
@@ -35,9 +42,10 @@
       font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg-canvas);
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 55%),
-        radial-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px);
-      background-size: 100% 100%, 24px 24px;
+        radial-gradient(circle at 15% 0%, rgba(234, 88, 12, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 0%, rgba(21, 128, 61, 0.08) 0%, transparent 45%),
+        radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 24px 24px;
       color: var(--text-primary);
       min-height: 100vh;
       display: flex;
@@ -50,13 +58,24 @@
 
     body.error-mode {
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(248, 113, 113, 0.09) 0%, transparent 55%),
-        radial-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+        radial-gradient(circle at 50% 0%, rgba(220, 38, 38, 0.08) 0%, transparent 55%),
+        radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 100% 100%, 24px 24px;
     }
 
     .container {
       width: 100%;
-      max-width: 1180px;
+      max-width: 1240px;
+    }
+
+    /* Tricolore Top Accent Strip */
+    .theme-ribbon {
+      height: 5px;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ea580c 0%, #ea580c 33%, #ffffff 33%, #ffffff 66%, #15803d 66%, #15803d 100%);
+      border: 1px solid #e2e8f0;
+      margin-bottom: 1.35rem;
     }
 
     /* Header & Top Bar */
@@ -74,35 +93,39 @@
       align-items: center;
       gap: 0.45rem;
       font-size: 0.72rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--border-active);
-      margin-bottom: 0.45rem;
-      transition: color 0.2s ease;
+      color: var(--orange);
+      background: var(--orange-light);
+      border: 1px solid #fed7aa;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      margin-bottom: 0.55rem;
+      transition: all 0.2s ease;
     }
 
     body.error-mode .eyebrow {
       color: var(--border-error);
+      background: var(--bg-error);
+      border-color: #fecaca;
     }
 
     .eyebrow-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background-color: var(--border-active);
-      box-shadow: 0 0 8px var(--border-active);
-      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+      background-color: var(--orange);
+      transition: background-color 0.2s ease;
     }
 
     body.error-mode .eyebrow-dot {
       background-color: var(--border-error);
-      box-shadow: 0 0 8px var(--border-error);
     }
 
     h1 {
-      font-size: 1.65rem;
-      font-weight: 700;
+      font-size: 1.7rem;
+      font-weight: 800;
       letter-spacing: -0.025em;
       color: var(--text-primary);
       margin-bottom: 0.3rem;
@@ -123,11 +146,12 @@
     /* Scenario Toggle Segmented Control */
     .scenario-switch {
       display: inline-flex;
-      background: rgba(17, 24, 39, 0.9);
+      background: #ffffff;
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
       padding: 3px;
       gap: 3px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
     }
 
     .scenario-btn {
@@ -139,7 +163,7 @@
       color: var(--text-secondary);
       font-size: 0.8rem;
       font-weight: 600;
-      padding: 0.42rem 0.8rem;
+      padding: 0.45rem 0.85rem;
       border-radius: 7px;
       cursor: pointer;
       transition: all 0.18s ease;
@@ -147,57 +171,65 @@
 
     .scenario-btn:hover {
       color: var(--text-primary);
+      background: #f1f5f9;
     }
 
     .scenario-btn.active-happy {
-      background: rgba(56, 189, 248, 0.16);
-      color: #38bdf8;
-      box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35);
+      background: var(--green);
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(21, 128, 61, 0.3);
     }
 
     .scenario-btn.active-error {
-      background: rgba(248, 113, 113, 0.16);
-      color: #f87171;
-      box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.38);
+      background: var(--border-error);
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
     }
 
     .btn-ghost {
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
-      background: rgba(30, 41, 59, 0.6);
+      background: #ffffff;
       color: var(--text-primary);
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
       padding: 0.48rem 0.9rem;
       font-size: 0.8rem;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
       transition: all 0.16s ease;
     }
 
-    .btn-ghost:hover {
-      background: var(--bg-surface-hover);
-      border-color: var(--border-hover);
+    .btn-ghost:hover:not(:disabled) {
+      background: var(--orange-light);
+      border-color: #fdba74;
+      color: var(--orange);
+    }
+
+    .btn-ghost:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
 
     .btn-ghost.playing {
-      border-color: var(--border-active);
-      color: var(--border-active);
-      background: rgba(56, 189, 248, 0.1);
+      border-color: var(--orange);
+      color: #ffffff;
+      background: var(--orange);
     }
 
     body.error-mode .btn-ghost.playing {
       border-color: var(--border-error);
-      color: var(--border-error);
-      background: rgba(248, 113, 113, 0.1);
+      color: #ffffff;
+      background: var(--border-error);
     }
 
     /* Progress Bar */
     .progress-track {
       width: 100%;
-      height: 3px;
-      background: rgba(148, 163, 184, 0.12);
+      height: 5px;
+      background: #e2e8f0;
       border-radius: 999px;
       margin-bottom: 1.25rem;
       overflow: hidden;
@@ -205,13 +237,13 @@
 
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      background: linear-gradient(90deg, #ea580c, #15803d);
       border-radius: 999px;
       transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
     }
 
     body.error-mode .progress-fill {
-      background: linear-gradient(90deg, #dc2626, #f87171);
+      background: linear-gradient(90deg, #ea580c, #dc2626);
     }
 
     /* Horizontal Pipeline */
@@ -220,22 +252,22 @@
       flex-direction: row;
       align-items: stretch;
       justify-content: space-between;
-      gap: 0.25rem;
+      gap: 0.65rem;
       overflow-x: auto;
       padding: 0.35rem 0.1rem 1rem;
     }
 
     .step-node {
-      flex: 1 1 185px;
-      min-width: 180px;
-      background: rgba(17, 24, 39, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--border-subtle);
+      flex: 1 1 170px;
+      min-width: 175px;
+      background: #ffffff;
+      border: 1.5px solid var(--border-subtle);
       border-radius: 14px;
-      padding: 1.05rem 0.95rem;
+      padding: 1rem 0.9rem;
       text-align: left;
       color: var(--text-primary);
       cursor: pointer;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
       transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
       position: relative;
       display: flex;
@@ -244,33 +276,47 @@
     }
 
     .step-node:hover {
-      background: var(--bg-surface-hover);
-      border-color: var(--border-hover);
+      background: #fffaf5;
+      border-color: #fdba74;
       transform: translateY(-2px);
     }
 
     .step-node.completed {
-      border-color: rgba(56, 189, 248, 0.28);
+      border-color: #86efac;
+      background: #fcfffd;
     }
 
     body.error-mode .step-node.completed {
-      border-color: rgba(248, 113, 113, 0.28);
+      border-color: #fed7aa;
     }
 
-    .step-node.active {
-      background: linear-gradient(165deg, rgba(14, 58, 92, 0.92), rgba(12, 45, 72, 0.95));
-      border: 1.5px solid var(--border-active);
-      box-shadow: 0 8px 28px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    /* Pagero Highlight Node (Orange) */
+    .step-node.pagero-node {
+      border-color: #fed7aa;
     }
 
+    .step-node.pagero-node.active {
+      background: linear-gradient(165deg, #fff7ed, #ffedd5);
+      border: 2px solid var(--orange);
+      box-shadow: 0 8px 24px var(--pagero-glow);
+    }
+
+    /* Standard Active Node (Green) */
+    .step-node.active:not(.pagero-node):not(.error-node) {
+      background: linear-gradient(165deg, #f0fdf4, #dcfce7);
+      border: 2px solid var(--green);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    /* Rejection Active Node */
     .step-node.error-node.active {
-      background: linear-gradient(165deg, rgba(69, 18, 27, 0.94), rgba(48, 12, 19, 0.96));
-      border: 1.5px solid var(--border-error);
-      box-shadow: 0 8px 28px var(--error-glow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      background: linear-gradient(165deg, #fef2f2, #fee2e2);
+      border: 2px solid var(--border-error);
+      box-shadow: 0 8px 24px var(--error-glow);
     }
 
     .step-node.error-node:not(.active) {
-      border-color: rgba(248, 113, 113, 0.25);
+      border-color: #fecaca;
     }
 
     .node-top {
@@ -289,15 +335,19 @@
     }
 
     .step-node.completed .step-badge {
-      color: #7dd3fc;
+      color: var(--green);
     }
 
     body.error-mode .step-node.completed .step-badge {
-      color: #fca5a5;
+      color: var(--orange);
     }
 
     .step-node.active .step-badge {
-      color: var(--border-active);
+      color: var(--green);
+    }
+
+    .step-node.pagero-node.active .step-badge {
+      color: var(--orange);
     }
 
     .step-node.error-node.active .step-badge {
@@ -305,243 +355,218 @@
     }
 
     .node-icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 8px;
-      background: rgba(148, 163, 184, 0.08);
+      padding: 0 7px;
+      height: 24px;
+      border-radius: 7px;
+      background: #f1f5f9;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-secondary);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
       transition: all 0.18s ease;
     }
 
+    .step-node.pagero-node .node-icon {
+      background: #ffedd5;
+      color: var(--orange);
+    }
+
     .step-node.active .node-icon {
-      background: rgba(56, 189, 248, 0.18);
-      color: var(--border-active);
+      background: var(--green);
+      color: #ffffff;
+    }
+
+    .step-node.pagero-node.active .node-icon {
+      background: var(--orange);
+      color: #ffffff;
     }
 
     .step-node.error-node.active .node-icon {
-      background: rgba(248, 113, 113, 0.18);
-      color: var(--border-error);
+      background: var(--border-error);
+      color: #ffffff;
     }
 
     .step-title {
-      font-size: 0.96rem;
+      font-size: 0.92rem;
       font-weight: 700;
-      letter-spacing: -0.01em;
+      color: var(--text-primary);
     }
 
     .step-summary {
-      font-size: 0.79rem;
-      line-height: 1.4;
+      font-size: 0.78rem;
       color: var(--text-secondary);
+      line-height: 1.4;
     }
 
-    .step-node.active .step-summary {
-      color: var(--text-accent);
-    }
-
-    .step-node.error-node.active .step-summary {
-      color: var(--text-error-accent);
-    }
-
-    /* Flowing Dotted Line Connector Arrows */
-    .connector {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      width: 34px;
-      position: relative;
-    }
-
-    .connector-dir-label {
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 2px;
-      opacity: 0.85;
-    }
-
-    .connector.reverse .connector-dir-label {
-      color: #f87171;
-    }
-
-    .connector svg {
-      width: 34px;
-      height: 18px;
-      overflow: visible;
-    }
-
-    .flow-line {
-      stroke: #475569;
-      stroke-width: 2;
-      stroke-dasharray: 3.5 3.5;
-      stroke-linecap: round;
-      animation: flowForward 0.85s linear infinite;
-      transition: stroke 0.25s ease;
-    }
-
-    .flow-head {
-      stroke: #475569;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-      transition: stroke 0.25s ease;
-    }
-
-    /* Lit / Active Forward Flow */
-    .connector.lit .flow-line,
-    .connector.lit .flow-head {
-      stroke: #38bdf8;
-    }
-
-    /* Error / Reverse Flow */
-    body.error-mode .connector.lit .flow-line,
-    body.error-mode .connector.lit .flow-head {
-      stroke: #f87171;
-    }
-
-    .connector.reverse .flow-line {
-      stroke: #f87171;
-      animation: flowBackward 0.85s linear infinite;
-    }
-
-    .connector.reverse .flow-head {
-      stroke: #f87171;
-    }
-
-    @keyframes flowForward {
-      from {
-        stroke-dashoffset: 14;
-      }
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
-
-    @keyframes flowBackward {
-      from {
-        stroke-dashoffset: 0;
-      }
-      to {
-        stroke-dashoffset: 14;
-      }
-    }
-
-    /* Detail Inspector Panel */
-    .inspector {
-      margin-top: 0.65rem;
-      background: rgba(17, 24, 39, 0.9);
-      border: 1px solid var(--border-subtle);
+    /* Inspector Detail Panel */
+    .inspector-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-subtle);
       border-radius: 16px;
-      padding: 1.6rem 1.75rem;
+      padding: 1.5rem;
       display: grid;
-      grid-template-columns: 1.35fr 1fr;
-      gap: 1.75rem;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-      animation: fadeSlide 0.22s ease-out;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      transition: border-color 0.25s ease;
     }
 
-    .inspector.error-panel {
-      border-color: rgba(248, 113, 113, 0.28);
+    body.error-mode .inspector-card {
+      border-color: #fecaca;
     }
 
-    @keyframes fadeSlide {
-      from {
-        opacity: 0.65;
-        transform: translateY(4px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+    @media (max-width: 860px) {
+      .inspector-card {
+        grid-template-columns: 1fr;
       }
     }
 
     .inspector-header {
       display: flex;
       align-items: center;
-      gap: 0.65rem;
+      justify-content: space-between;
+      gap: 0.75rem;
       margin-bottom: 0.65rem;
       flex-wrap: wrap;
     }
 
-    .inspector-header h2 {
+    .inspector-title {
       font-size: 1.2rem;
       font-weight: 700;
-      letter-spacing: -0.015em;
+      color: var(--text-primary);
     }
 
-    .pill {
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 0.22rem 0.6rem;
-      border-radius: 999px;
-      background: rgba(56, 189, 248, 0.12);
-      color: var(--border-active);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-    }
-
-    .pill.error-pill {
-      background: rgba(248, 113, 113, 0.14);
-      color: var(--border-error);
-      border: 1px solid rgba(248, 113, 113, 0.35);
-    }
-
-    .inspector-main p {
-      color: var(--text-secondary);
-      font-size: 0.92rem;
-      line-height: 1.62;
-      margin-bottom: 1.15rem;
-    }
-
-    .meta-list {
-      list-style: none;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-      gap: 0.6rem;
-    }
-
-    .meta-list li {
-      background: rgba(9, 13, 22, 0.65);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      padding: 0.55rem 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-
-    .meta-label {
-      font-size: 0.68rem;
+    .status-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      background: var(--green-light);
+      color: var(--green);
+      border: 1px solid #bbf7d0;
     }
 
-    .meta-value {
-      font-size: 0.82rem;
+    .status-pill.pagero {
+      background: var(--orange-light);
+      color: var(--orange);
+      border: 1px solid #fed7aa;
+    }
+
+    .status-pill.error {
+      background: var(--bg-error);
+      color: var(--border-error);
+      border: 1px solid #fecaca;
+    }
+
+    .description-callout {
+      background: var(--green-light);
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid var(--green);
+      border-radius: 10px;
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+
+    .description-callout.pagero {
+      background: var(--orange-light);
+      border-color: #fed7aa;
+      border-left-color: var(--orange);
+    }
+
+    .description-callout.error {
+      background: var(--bg-error);
+      border-color: #fecaca;
+      border-left-color: var(--border-error);
+    }
+
+    .description-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--text-accent);
-      font-weight: 500;
+      margin-bottom: 0.3rem;
+      display: block;
     }
 
-    .inspector.error-panel .meta-value {
+    .description-callout.pagero .description-label {
+      color: var(--text-pagero-accent);
+    }
+
+    .description-callout.error .description-label {
       color: var(--text-error-accent);
     }
 
-    /* Code Box with Header & Copy */
-    .code-wrapper {
-      background: #070b12;
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
+    .description-text {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      line-height: 1.55;
+    }
+
+    .tech-note {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* SdI Error Code Selector inside Rejection View */
+    .error-selector-panel {
+      margin-top: 1rem;
+      padding: 0.95rem 1rem;
+      background: #fff7ed;
+      border: 1.5px solid #fdba74;
+      border-radius: 10px;
+    }
+
+    .error-selector-panel label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #c2410c;
+      margin-bottom: 0.45rem;
+    }
+
+    .error-select {
+      width: 100%;
+      background-color: #ffffff;
+      color: var(--text-primary);
+      border: 1.5px solid #fb923c;
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .error-select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--pagero-glow);
+    }
+
+    .fix-tip {
+      margin-top: 0.65rem;
+      font-size: 0.82rem;
+      color: #7c2d12;
+      line-height: 1.45;
+    }
+
+    /* Code Box */
+    .code-pane {
       display: flex;
       flex-direction: column;
+      background: #1e293b;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
       overflow: hidden;
     }
 
@@ -549,639 +574,551 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.55rem 0.9rem;
-      background: rgba(30, 41, 59, 0.45);
-      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.5rem 0.9rem;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
       font-size: 0.74rem;
-      color: var(--text-secondary);
+      font-weight: 600;
+      color: #f8fafc;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      gap: 0.5rem;
     }
 
-    .copy-btn {
-      background: transparent;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
+    .code-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 6px;
-      padding: 0.2rem 0.55rem;
-      font-size: 0.72rem;
+      padding: 0.22rem 0.55rem;
+      font-size: 0.7rem;
+      font-weight: 600;
       cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
       transition: all 0.15s ease;
     }
 
-    .copy-btn:hover {
-      color: var(--text-primary);
-      border-color: var(--border-hover);
+    .btn-copy:hover {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #ffffff;
     }
 
-    .copy-btn.copied {
-      color: var(--success);
-      border-color: rgba(52, 211, 153, 0.4);
+    .btn-copy.copied {
+      background: var(--green);
+      border-color: var(--green);
+      color: #ffffff;
     }
 
-    .inspector-code {
-      padding: 0.95rem 1rem;
+    pre {
+      padding: 1rem;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #f1f5f9;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.79rem;
-      line-height: 1.55;
-      color: #e2e8f0;
       overflow-x: auto;
       white-space: pre;
     }
 
-    /* Syntax Highlights */
-    .tok-tag { color: #38bdf8; }
-    .tok-err { color: #f87171; font-weight: 600; }
-    .tok-key { color: #7dd3fc; }
-    .tok-str { color: #34d399; }
-    .tok-num { color: #fbbf24; }
+    .hl-ok {
+      color: #86efac;
+      background: rgba(22, 163, 74, 0.28);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
 
-    /* Footer Controls */
-    .controls {
-      margin-top: 1.1rem;
+    .hl-pagero {
+      color: #fdba74;
+      background: rgba(234, 88, 12, 0.3);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .hl-err {
+      color: #fecaca;
+      background: rgba(220, 38, 38, 0.35);
+      border-bottom: 1px dashed #f87171;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* Footer Navigation */
+    .footer-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-top: 1.15rem;
       color: var(--text-muted);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       flex-wrap: wrap;
       gap: 0.75rem;
     }
 
-    .kbd-hint {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    kbd {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-bottom-width: 2px;
-      border-radius: 5px;
-      padding: 0.1rem 0.42rem;
-      font-family: inherit;
-      font-size: 0.74rem;
-      color: var(--text-secondary);
-    }
-
-    .nav-btns {
+    .nav-controls {
       display: flex;
       gap: 0.5rem;
-    }
-
-    button.nav-btn {
-      background: var(--bg-surface);
-      color: var(--text-primary);
-      border: 1px solid var(--border-subtle);
-      border-radius: 9px;
-      padding: 0.48rem 0.95rem;
-      font-size: 0.82rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    button.nav-btn:hover:not(:disabled) {
-      border-color: var(--border-active);
-      color: var(--border-active);
-      background: var(--bg-surface-hover);
-    }
-
-    body.error-mode button.nav-btn:hover:not(:disabled) {
-      border-color: var(--border-error);
-      color: var(--border-error);
-    }
-
-    button.nav-btn:disabled {
-      opacity: 0.38;
-      cursor: not-allowed;
-    }
-
-    @media (max-width: 860px) {
-      .inspector {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="theme-ribbon"></div>
+
     <div class="top-bar">
       <div>
-        <div class="eyebrow"><span class="eyebrow-dot"></span> <span id="eyebrowText">Standard Clearance Flow</span></div>
-        <h1>Italian E-Invoicing Flow (FatturaPA)</h1>
-        <p class="subtitle" id="subtitleText">Select any stage or toggle scenarios to inspect schema transformations, SdI clearance, and rejection handling.</p>
-      </div>
-      <div class="header-actions">
-        <div class="scenario-switch" role="group" aria-label="Flow Scenario">
-          <button type="button" class="scenario-btn active-happy" id="btnHappy">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            Cleared (EC01)
-          </button>
-          <button type="button" class="scenario-btn" id="btnError">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            SdI Rejection (Scarto)
-          </button>
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          <span id="eyebrow-text">Custom ERP → Pagero → SdI Clearance Flow</span>
         </div>
+        <h1>Italian E-Invoicing Flow (FatturaPA &amp; Pagero)</h1>
+        <p class="subtitle">Select any stage or toggle scenarios to inspect custom ERP format mapping, Pagero conversion, SdI clearance, and rejection handling.</p>
+      </div>
 
-        <button class="btn-ghost" id="autoPlayBtn" type="button">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          <span>Auto-Play Flow</span>
-        </button>
+      <div class="header-actions">
+        <div class="scenario-switch">
+          <button id="btn-happy" class="scenario-btn active-happy" onclick="setScenario('happy')">Cleared (EC01)</button>
+          <button id="btn-error" class="scenario-btn" onclick="setScenario('error')">SdI Rejection (Scarto)</button>
+        </div>
+        <button id="btn-autoplay" class="btn-ghost" onclick="toggleAutoplay()">▶ Auto-Play Flow</button>
       </div>
     </div>
 
-    <div class="progress-track" aria-hidden="true">
-      <div class="progress-fill" id="progressFill" style="width: 20%;"></div>
+    <div class="progress-track">
+      <div id="progress-fill" class="progress-fill" style="width: 20%;"></div>
     </div>
 
-    <div class="pipeline" id="pipeline" role="tablist" aria-label="FatturaPA Process Steps"></div>
+    <div id="pipeline" class="pipeline"></div>
 
-    <section class="inspector" id="inspector" aria-live="polite"></section>
+    <div id="inspector" class="inspector-card"></div>
 
-    <div class="controls">
-      <div class="kbd-hint">
-        <span>Navigate with</span> <kbd>←</kbd> <kbd>→</kbd> <span>or click any stage card</span>
-      </div>
-      <div class="nav-btns">
-        <button class="nav-btn" id="prevBtn" type="button">← Previous</button>
-        <button class="nav-btn" id="nextBtn" type="button">Next →</button>
+    <div class="footer-nav">
+      <span>Navigate with ← → or click any stage card • Pagero Codice Destinatario: T9K4ZHO</span>
+      <div class="nav-controls">
+        <button id="btn-prev" class="btn-ghost" onclick="step(-1)">← Previous</button>
+        <button id="btn-next" class="btn-ghost" onclick="step(1)">Next →</button>
       </div>
     </div>
   </div>
 
   <script>
-    const icons = {
-      erp: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>`,
-      transform: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>`,
-      clearance: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>`,
-      delivery: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`,
-      archive: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
-      alert: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
-      undo: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>`
-    };
-
-    const scenarios = {
-      happy: {
-        eyebrow: "Standard Clearance Flow (Happy Path)",
-        subtitle: "Select any stage or switch to SdI Rejection to inspect schema transformations, clearance, and archiving.",
-        steps: [
-          {
-            id: 1,
-            icon: icons.erp,
-            title: "1. Extraction",
-            shortDesc: "Customer ERP generates custom format",
-            tag: "Source System",
-            fileLabel: "erp-export.json",
-            isError: false,
-            connectorDir: "forward",
-            detail: "The supplier's ERP system extracts invoice header, line items, tax rates, and customer master data into its native export format (IDoc, JSON, CSV, or proprietary XML) and transmits it securely to Pagero.",
-            specs: [
-              { label: "Protocol", value: "SFTP / REST API" },
-              { label: "Input Format", value: "ERP Native (IDoc / JSON)" },
-              { label: "Trigger", value: "Invoice Posting Event" }
-            ],
-            sample: `{
-  "invoiceNumber": "INV-2026-0841",
-  "issueDate": "2026-11-11",
-  "currency": "EUR",
-  "vatRate": 22.0,
-  "totalAmount": 1220.00
-}`
-          },
-          {
-            id: 2,
-            icon: icons.transform,
-            title: "2. Transformation",
-            shortDesc: "Pagero maps to FatturaPA XML",
-            tag: "Core Mapping",
-            fileLabel: "IT01234567890_00001.xml",
-            isError: false,
-            connectorDir: "forward",
-            detail: "Pagero normalises the raw ERP payload, enriches missing Italian fiscal codes (Natura IVA, TipoDocumento), applies a qualified digital signature (CAdES-BES / XAdES), and outputs schema-valid FatturaPA v1.2 XML.",
-            specs: [
-              { label: "Standard", value: "FatturaPA XML v1.2" },
-              { label: "Signature", value: "XAdES-BES / CAdES" },
-              { label: "Pre-Check", value: "XSD & Business Rules" }
-            ],
-            sample: `<FatturaElettronicaHeader>
-  <DatiTrasmissione>
-    <FormatoTrasmissione>FPR12</FormatoTrasmissione>
-    <CodiceDestinatario>SUBM70N</CodiceDestinatario>
-  </DatiTrasmissione>
-</FatturaElettronicaHeader>`
-          },
-          {
-            id: 3,
-            icon: icons.clearance,
-            title: "3. Clearance",
-            shortDesc: "Pagero sends XML to SdI for validation",
-            tag: "Tax Authority",
-            fileLabel: "RC_9841204912.xml",
-            isError: false,
-            connectorDir: "forward",
-            detail: "Pagero submits the signed XML to Italy's Sistema di Interscambio (SdI). SdI verifies fiscal integrity, VAT numbers, and uniqueness before issuing a Delivery Receipt (Ricevuta di Consegna).",
-            specs: [
-              { label: "Gateway", value: "Sistema di Interscambio (SdI)" },
-              { label: "Response Window", value: "Real-time up to 5 days" },
-              { label: "Outcome", value: "Ricevuta di Consegna (RC)" }
-            ],
-            sample: `<RicevutaConsegna>
-  <IdentificativoSdI>9841204912</IdentificativoSdI>
-  <DataOraRicezione>2026-11-11T21:54:10Z</DataOraRicezione>
-  <Esito>EC01 - Accepted</Esito>
-</RicevutaConsegna>`
-          },
-          {
-            id: 4,
-            icon: icons.delivery,
-            title: "4. Delivery",
-            shortDesc: "SdI routes to buyer via Codice Destinatario",
-            tag: "Buyer Routing",
-            fileLabel: "sdi-routing.log",
-            isError: false,
-            connectorDir: "forward",
-            detail: "Once cleared, SdI automatically routes the official invoice to the buyer's registered channel using their 7-character Codice Destinatario or certified PEC email address, while Pagero syncs status updates back to the seller's ERP.",
-            specs: [
-              { label: "Primary Channel", value: "7-char Codice Destinatario" },
-              { label: "Fallback", value: "Certified PEC Email" },
-              { label: "ERP Sync", value: "Status Webhook / Ack" }
-            ],
-            sample: `{
-  "codiceDestinatario": "SUBM70N",
-  "channel": "Accredited SdI Endpoint",
-  "deliveryStatus": "DELIVERED",
-  "erpSync": "SUCCESS"
-}`
-          },
-          {
-            id: 5,
-            icon: icons.archive,
-            title: "5. Archiving",
-            shortDesc: "10-year legal storage (Conservazione)",
-            tag: "Compliance",
-            fileLabel: "PdV-2026-0841.manifest",
-            isError: false,
-            connectorDir: "forward",
-            detail: "Both the signed FatturaPA XML and all SdI clearance receipts are sealed into compliant Italian digital archiving (Conservazione Sostitutiva) with qualified timestamps for the mandatory 10-year retention period.",
-            specs: [
-              { label: "Retention Period", value: "10 Years Mandatory" },
-              { label: "Framework", value: "AgID Conservazione" },
-              { label: "Integrity", value: "SHA-256 + Qualified Timestamp" }
-            ],
-            sample: `{
-  "archivePackage": "PdV-2026-0841.zip",
-  "digestAlgorithm": "SHA-256",
-  "retentionYears": 10,
-  "validUntil": "2036-11-11"
-}`
-          }
-        ]
-      },
-      error: {
-        eyebrow: "Exception Handling Flow (Notifica di Scarto)",
-        subtitle: "Simulates an SdI fiscal validation failure—notice the reverse rejection return path to Pagero and the customer ERP.",
-        steps: [
-          {
-            id: 1,
-            icon: icons.erp,
-            title: "1. Extraction",
-            shortDesc: "ERP exports invoice with invalid Partita IVA",
-            tag: "Source Defect",
-            fileLabel: "erp-export-invalid.json",
-            isError: false,
-            connectorDir: "forward",
-            detail: "The supplier's ERP exports an invoice containing an inactive buyer VAT number (Partita IVA) or mismatched tax calculation and transmits it to Pagero.",
-            specs: [
-              { label: "Protocol", value: "SFTP / REST API" },
-              { label: "Data Issue", value: "Inactive Buyer Partita IVA" },
-              { label: "Trigger", value: "Invoice Posting Event" }
-            ],
-            sample: `{
-  "invoiceNumber": "INV-2026-0842",
-  "buyerVat": "IT99999999999",
-  "vatRate": 22.0,
-  "totalAmount": 2440.00
-}`
-          },
-          {
-            id: 2,
-            icon: icons.transform,
-            title: "2. Transformation",
-            shortDesc: "Pagero maps & signs FatturaPA XML",
-            tag: "Core Mapping",
-            fileLabel: "IT01234567890_00002.xml",
-            isError: false,
-            connectorDir: "forward",
-            detail: "Pagero converts the payload into valid XSD structure and signs the FatturaPA XML. Because VAT registry status is verified against Italy's Anagrafe Tributaria, the payload proceeds to SdI.",
-            specs: [
-              { label: "XSD Schema", value: "Valid FatturaPA v1.2" },
-              { label: "Signature", value: "XAdES-BES Applied" },
-              { label: "Next Hop", value: "Submitted to SdI" }
-            ],
-            sample: `<CessionarioCommittente>
-  <DatiAnagrafici>
-    <IdFiscaleIVA>
-      <IdCodice>99999999999</IdCodice>
-    </IdFiscaleIVA>
-  </DatiAnagrafici>
-</CessionarioCommittente>`
-          },
-          {
-            id: 3,
-            icon: icons.alert,
-            title: "3. SdI Rejection",
-            shortDesc: "SdI blocks invoice & issues Notifica di Scarto",
-            tag: "Validation Failed",
-            fileLabel: "NS_9841204999.xml",
-            isError: true,
-            connectorDir: "reverse",
-            detail: "SdI rejects the invoice during fiscal cross-checks (Error 00305: Invalid Partita IVA). The invoice is legally considered never issued, is NOT delivered to the buyer, and a Notifica di Scarto (NS) is returned.",
-            specs: [
-              { label: "SdI Notice", value: "Notifica di Scarto (NS)" },
-              { label: "Error Code", value: "00305 - Invalid VAT ID" },
-              { label: "Legal Status", value: "Unissued (Must Re-send)" }
-            ],
-            sample: `<NotificaScarto>
-  <IdentificativoSdI>9841204999</IdentificativoSdI>
+    const SDI_ERRORS = {
+      "00305": {
+        code: "00305",
+        title: "00305 — Invalid Buyer VAT (IdFiscaleIVA non valido)",
+        description: "The buyer's VAT number (Partita IVA) does not exist in Italy's tax registry or contains a typo.",
+        fix: "Update the buyer's 11-digit VAT code in your ERP master data and re-export your custom invoice file to Pagero within 5 days.",
+        xmlTitle: "NotificaScarto_00305.xml",
+        xml: `<NotificaScarto version="1.0">
+  <IdentificativoSdI>8492019482</IdentificativoSdI>
+  <NomeFile>IT01234567890_00015.xml</NomeFile>
   <ListaErrori>
     <Errore>
-      <Codice>00305</Codice>
-      <Descrizione>IdFiscaleIVA non valido</Descrizione>
+      <Codice><span class="hl-err">00305</span></Codice>
+      <Descrizione><span class="hl-err">IdFiscaleIVA del CessionarioCommittente non valido</span></Descrizione>
     </Errore>
   </ListaErrori>
 </NotificaScarto>`
-          },
-          {
-            id: 4,
-            icon: icons.undo,
-            title: "4. Error Return",
-            shortDesc: "Pagero translates error & alerts ERP",
-            tag: "Reverse Sync",
-            fileLabel: "webhook-rejection.json",
-            isError: true,
-            connectorDir: "reverse",
-            detail: "Pagero ingests the XML rejection notice, translates SdI error code 00305 into an actionable human-readable message, and pushes a real-time failure webhook back to the customer's ERP.",
-            specs: [
-              { label: "Flow Direction", value: "SdI → Pagero → ERP" },
-              { label: "Action", value: "ERP Status Flagged: REJECTED" },
-              { label: "Remediation", value: "Fix VAT & Re-submit (5-day rule)" }
-            ],
-            sample: `{
-  "invoiceNumber": "INV-2026-0842",
-  "status": "REJECTED_BY_SDI",
-  "errorCode": "00305",
-  "actionRequired": "Correct buyer VAT & resend"
-}`
-          },
-          {
-            id: 5,
-            icon: icons.archive,
-            title: "5. Blocked Archiving",
-            shortDesc: "Held from legal Conservazione until re-issued",
-            tag: "Compliance Hold",
-            fileLabel: "audit-hold.log",
-            isError: true,
-            connectorDir: "forward",
-            detail: "Rejected invoices cannot enter legal Conservazione Sostitutiva. Pagero logs the rejection receipt for audit traceability and awaits a corrected re-submission using the same invoice number within 5 days.",
-            specs: [
-              { label: "Conservazione", value: "Paused (Not Legally Issued)" },
-              { label: "Audit Trail", value: "NS Receipt Logged" },
-              { label: "Re-issue Window", value: "Within 5 Calendar Days" }
-            ],
-            sample: `{
-  "invoiceNumber": "INV-2026-0842",
-  "conservazioneState": "ON_HOLD",
-  "reason": "Awaiting valid SdI Ricevuta di Consegna"
-}`
-          }
-        ]
+      },
+      "00404": {
+        code: "00404",
+        title: "00404 — Duplicate Invoice (Fattura duplicata)",
+        description: "An invoice with the exact same seller VAT, document type, year, and invoice number was already cleared.",
+        fix: "Check Pagero Online status logs. If it is a new bill, export a fresh custom file from your ERP with the next sequential invoice number.",
+        xmlTitle: "NotificaScarto_00404.xml",
+        xml: `<NotificaScarto version="1.0">
+  <IdentificativoSdI>8492019483</IdentificativoSdI>
+  <NomeFile>IT01234567890_00015.xml</NomeFile>
+  <ListaErrori>
+    <Errore>
+      <Codice><span class="hl-err">00404</span></Codice>
+      <Descrizione><span class="hl-err">Fattura duplicata per CedentePrestatore, TipoDocumento, Anno e Numero</span></Descrizione>
+    </Errore>
+  </ListaErrori>
+</NotificaScarto>`
+      },
+      "00200": {
+        code: "00200",
+        title: "00200 — Invalid XML Signature / Schema Format",
+        description: "The XML file is malformed, missing required tags, or has a corrupted digital signature wrapper.",
+        fix: "Check that all mandatory custom ERP fields are populated so Pagero's custom mapper can generate a valid FatturaPA v1.2.2 XSD & XAdES signature.",
+        xmlTitle: "NotificaScarto_00200.xml",
+        xml: `<NotificaScarto version="1.0">
+  <IdentificativoSdI>8492019484</IdentificativoSdI>
+  <NomeFile>IT01234567890_00015.xml.p7m</NomeFile>
+  <ListaErrori>
+    <Errore>
+      <Codice><span class="hl-err">00200</span></Codice>
+      <Descrizione><span class="hl-err">File non conforme al formato (Schema XSD / Firma XML non valida)</span></Descrizione>
+    </Errore>
+  </ListaErrori>
+</NotificaScarto>`
+      },
+      "00311": {
+        code: "00311",
+        title: "00311 — Invalid Recipient Code (CodiceDestinatario non valido)",
+        description: "The 7-character digital mailbox code telling SdI where to deliver the invoice does not exist or is inactive.",
+        fix: "Confirm the buyer's 7-char Codice Destinatario in your custom ERP export (e.g., T9K4ZHO for Pagero recipients) or use '0000000' with their PEC email.",
+        xmlTitle: "NotificaScarto_00311.xml",
+        xml: `<NotificaScarto version="1.0">
+  <IdentificativoSdI>8492019485</IdentificativoSdI>
+  <NomeFile>IT01234567890_00015.xml</NomeFile>
+  <ListaErrori>
+    <Errore>
+      <Codice><span class="hl-err">00311</span></Codice>
+      <Descrizione><span class="hl-err">CodiceDestinatario non valido o non attivo</span></Descrizione>
+    </Errore>
+  </ListaErrori>
+</NotificaScarto>`
+      },
+      "00401": {
+        code: "00401",
+        title: "00401 — Expired Digital Certificate (Certificato di firma scaduto)",
+        description: "The digital certificate used to sign the FatturaPA XML file was expired at the time of SdI verification.",
+        fix: "Renew or re-activate the signing delegate certificate in Pagero Online and re-trigger transmission.",
+        xmlTitle: "NotificaScarto_00401.xml",
+        xml: `<NotificaScarto version="1.0">
+  <IdentificativoSdI>8492019487</IdentificativoSdI>
+  <NomeFile>IT01234567890_00015.xml.p7m</NomeFile>
+  <ListaErrori>
+    <Errore>
+      <Codice><span class="hl-err">00401</span></Codice>
+      <Descrizione><span class="hl-err">Certificato di firma scaduto al momento della verifica</span></Descrizione>
+    </Errore>
+  </ListaErrori>
+</NotificaScarto>`
+      },
+      "00421": {
+        code: "00421",
+        title: "00421 — VAT Calculation Mismatch (Imposta non coerente)",
+        description: "The VAT amount in the summary does not match Taxable Amount × VAT Rate (tolerance is €1.00).",
+        fix: "Adjust tax rounding in your custom ERP export lines so <Imposta> matches <ImponibileImporto> × <AliquotaIVA>.",
+        xmlTitle: "NotificaScarto_00421.xml",
+        xml: `<NotificaScarto version="1.0">
+  <IdentificativoSdI>8492019486</IdentificativoSdI>
+  <NomeFile>IT01234567890_00015.xml</NomeFile>
+  <ListaErrori>
+    <Errore>
+      <Codice><span class="hl-err">00421</span></Codice>
+      <Descrizione><span class="hl-err">Imposta non coerente con ImponibileImporto e AliquotaIVA</span></Descrizione>
+    </Errore>
+  </ListaErrori>
+</NotificaScarto>`
+      },
+      "00445": {
+        code: "00445",
+        title: "00445 — Invalid VAT Exemption Nature Code (Codice Natura non ammesso)",
+        description: "The invoice uses a generic VAT exemption code (such as bare N2, N3, or N6) instead of a required specific sub-code.",
+        fix: "Map the tax code in your custom ERP export to a granular Natura sub-code (e.g., N2.1, N3.2, or N6.1) and re-export to Pagero.",
+        xmlTitle: "NotificaScarto_00445.xml",
+        xml: `<NotificaScarto version="1.0">
+  <IdentificativoSdI>8492019488</IdentificativoSdI>
+  <NomeFile>IT01234567890_00015.xml</NomeFile>
+  <ListaErrori>
+    <Errore>
+      <Codice><span class="hl-err">00445</span></Codice>
+      <Descrizione><span class="hl-err">Codice Natura non più ammesso per il tipo documento e data</span></Descrizione>
+    </Errore>
+  </ListaErrori>
+</NotificaScarto>`
       }
     };
 
-    let currentScenario = "happy";
-    let activeIndex = 0;
-    let autoPlayTimer = null;
+    let state = {
+      scenario: "happy",
+      activeStep: 0,
+      selectedError: "00305",
+      timer: null
+    };
 
-    const pipelineEl = document.getElementById("pipeline");
-    const inspectorEl = document.getElementById("inspector");
-    const progressFill = document.getElementById("progressFill");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const autoPlayBtn = document.getElementById("autoPlayBtn");
-    const btnHappy = document.getElementById("btnHappy");
-    const btnError = document.getElementById("btnError");
-    const eyebrowText = document.getElementById("eyebrowText");
-    const subtitleText = document.getElementById("subtitleText");
+    function getSteps() {
+      const isError = state.scenario === "error";
+      const errObj = SDI_ERRORS[state.selectedError];
 
-    function highlightSyntax(raw) {
-      const escaped = raw
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
-      return escaped
-        .replace(/(&lt;\/?(?:NotificaScarto|ListaErrori|Errore|Codice|Descrizione)&gt;)/g, '<span class="tok-err">$1</span>')
-        .replace(/(&lt;\/?[a-zA-Z0-9_:-]+&gt;)/g, '<span class="tok-tag">$1</span>')
-        .replace(/("[^"]+")(\s*:)/g, '<span class="tok-key">$1</span>$2')
-        .replace(/(:\s*)("[^"]*")/g, '$1<span class="tok-str">$2</span>')
-        .replace(/(:\s*)(\d+(\.\d+)?)/g, '$1<span class="tok-num">$2</span>');
+      return [
+        {
+          badge: "Stage 01",
+          icon: "ERP",
+          title: "Custom ERP Export",
+          summary: "ERP outputs proprietary/custom file to Pagero.",
+          status: "Custom Format Sent",
+          description: "Your ERP does not need native Italian tax XML support. It simply exports your bespoke flat file, custom XML, or CSV extract directly to Pagero.",
+          tech: "Ingested via Pagero Connect, SFTP, or API using a custom ERP export schema (proprietary flat file, pipe/CSV, or custom internal XML).",
+          codeTitle: "ERP_Custom_Export_20260015.txt",
+          code: `HDR|INV|FT-2026-0015|2026-11-11|EUR|TD01
+SUP|IT01234567890|Acme Italia S.r.l.
+BUY|${isError && state.selectedError === "00305" ? '<span class="hl-err">IT00000000000</span>' : '<span class="hl-ok">IT09876543210</span>'}|${isError && state.selectedError === "00311" ? '<span class="hl-err">XXXXXXX</span>' : '<span class="hl-pagero">T9K4ZHO</span>'}|Client SpA
+LIN|001|Consulting Services|1.00|1000.00|22.00|${isError && state.selectedError === "00421" ? '<span class="hl-err">150.00</span>' : '<span class="hl-ok">220.00</span>'}|${isError && state.selectedError === "00445" ? '<span class="hl-err">N3</span>' : 'TAXABLE'}
+SUM|1000.00|${isError && state.selectedError === "00421" ? '<span class="hl-err">150.00</span>' : '<span class="hl-ok">220.00</span>'}|${isError && state.selectedError === "00421" ? '<span class="hl-err">1150.00</span>' : '<span class="hl-ok">1220.00</span>'}`
+        },
+        {
+          badge: "Stage 02",
+          icon: "PAGERO",
+          title: "Pagero Custom Mapping & Sign",
+          summary: "Pagero maps custom format → FatturaPA XML & signs.",
+          status: "Pagero Transformation",
+          isPageroNode: true,
+          description: "Pagero's custom mapping engine reads your proprietary ERP fields, maps every value into the official Italian FatturaPA XML structure, and seals it with a legal e-signature.",
+          tech: "Pagero custom transformation map parses proprietary records, validates mandatory Italian tax rules, generates FatturaPA v1.2.2 XML, applies XAdES/CAdES signature, and transmits via SDICoop.",
+          codeTitle: "Pagero_Mapped_FatturaPA.xml",
+          code: `<p:FatturaElettronica versione="FPR12">
+  <FatturaElettronicaHeader>
+    <DatiTrasmissione>
+      <IdTrasmittente><IdPaese>IT</IdPaese><IdCodice><span class="hl-pagero">10425870960</span></IdCodice></IdTrasmittente>
+      <CodiceDestinatario>${isError && state.selectedError === "00311" ? '<span class="hl-err">XXXXXXX</span>' : '<span class="hl-pagero">T9K4ZHO</span>'}</CodiceDestinatario>
+    </DatiTrasmissione>
+    <CessionarioCommittente>
+      <IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>${isError && state.selectedError === "00305" ? '<span class="hl-err">00000000000</span>' : '<span class="hl-ok">09876543210</span>'}</IdCodice></IdFiscaleIVA>
+    </CessionarioCommittente>
+  </FatturaElettronicaHeader>
+  <span class="hl-pagero">&lt;!-- Mapped from Custom ERP Format &amp; Signed by Pagero --&gt;</span>
+</p:FatturaElettronica>`
+        },
+        {
+          badge: "Stage 03",
+          icon: isError ? "ERR" : "SDI",
+          title: isError ? `SdI Rejection (${errObj.code})` : "SdI Clearance Check",
+          summary: isError ? `Blocked by SdI with error ${errObj.code}.` : "Tax hub validates VAT IDs, schema, and math.",
+          status: isError ? `Scarto (${errObj.code})` : "Validated by SdI",
+          isErrorNode: isError,
+          showErrorDropdown: isError,
+          description: isError
+            ? `The Italian tax authority hub (SdI) detected a validation error and blocked the invoice before delivery: ${errObj.description}`
+            : "The Italian government's Sistema di Interscambio (SdI) validates the mapped XML schema, verifies active VAT numbers, and confirms tax calculations in real time.",
+          tech: isError
+            ? `SdI halts clearance and sends a signed Notifica di Scarto XML with error ${errObj.code} back to Pagero's SDICoop endpoint.`
+            : "SdI assigns a unique IdentificativoSdI tracking number and approves the invoice for legal issuance.",
+          codeTitle: isError ? errObj.xmlTitle : "SdI_Validation_Log.xml",
+          code: isError
+            ? errObj.xml
+            : `<ValidationResult>
+  <IdentificativoSdI><span class="hl-ok">8492019480</span></IdentificativoSdI>
+  <IntermediaryChannel><span class="hl-pagero">Pagero SDICoop</span></IntermediaryChannel>
+  <SchemaCheck>PASS (FPR12)</SchemaCheck>
+  <TaxRegistryCheck>PASS (VAT Active)</TaxRegistryCheck>
+</ValidationResult>`
+        },
+        {
+          badge: "Stage 04",
+          icon: isError ? "VOID" : "DLV",
+          title: isError ? "Pagero Scarto Relay" : "SdI & Pagero Delivery",
+          summary: isError ? "Pagero maps Scarto back to custom ERP status." : "Routed to buyer; delivery receipt synced.",
+          status: isError ? "Legally Non-Issued" : "Ricevuta di Consegna",
+          isErrorNode: isError,
+          showErrorDropdown: isError,
+          description: isError
+            ? "Legally, a rejected invoice is treated as non-issued and never reaches the buyer. Pagero captures the rejection notice from SdI, maps the error into your custom ERP feedback format, and alerts your team to resubmit within 5 days."
+            : "Once cleared, SdI delivers the official invoice to the buyer's channel (or via Pagero if the buyer uses code T9K4ZHO) and returns a delivery receipt to Pagero and your ERP.",
+          tech: isError
+            ? "Pagero translates the XML Notifica di Scarto into a custom status response file/webhook so your ERP logs the exact SdI rejection reason."
+            : "SdI sends Ricevuta di Consegna to Pagero, which converts the delivery confirmation into your ERP's custom status acknowledgment format.",
+          codeTitle: isError ? "ERP_Custom_Status_ERR.txt" : "ERP_Custom_Status_OK.txt",
+          code: isError
+            ? `ACK|FT-2026-0015|<span class="hl-err">REJECTED_SDI</span>|<span class="hl-err">${errObj.code}</span>|NON_ISSUED|RESUBMIT_5_DAYS`
+            : `ACK|FT-2026-0015|<span class="hl-ok">CLEARED_DELIVERED</span>|SDI_ID:8492019480|2026-11-11T15:04:12Z`
+        },
+        {
+          badge: "Stage 05",
+          icon: isError ? "FIX" : "EC01",
+          title: isError ? "Fix & Re-Export Custom File" : "Outcome (EC01) & Archive",
+          summary: isError ? "Seller fixes ERP data & re-exports to Pagero." : "EC01 synced; 10-year compliant archive.",
+          status: isError ? "Action Required" : "Cleared & Archived",
+          isErrorNode: isError,
+          isPageroNode: !isError,
+          showErrorDropdown: isError,
+          description: isError
+            ? "The seller corrects the flagged field in their ERP and re-exports the custom file to Pagero (Stage 01), keeping the exact same invoice number and date."
+            : "When the buyer sends an acceptance outcome (EC01), Pagero syncs the status back to your ERP in your custom format and locks the signed XML in certified Italian digital storage (Conservazione Sostitutiva) for 10 years.",
+          tech: isError
+            ? "Pagero maps the re-exported custom file with a new progressive transmission ID while preserving the original <Numero> and <Data>."
+            : "Pagero's e-Archiving module applies qualified timestamps and digital signatures to guarantee legal compliance for 10 years.",
+          codeTitle: isError ? "Resubmission_Checklist.txt" : "Pagero_Archive_Status.json",
+          code: isError
+            ? `ACTION: Fix field for Error ${errObj.code} in ERP
+EXPORT: Re-send custom flat file to Pagero
+RULE:   Keep original Invoice Number (FT-2026-0015) & Date`
+            : `{
+  "identificativoSdI": "8492019480",
+  "buyerOutcome": "<span class="hl-ok">EC01 (Accepted)</span>",
+  "erpFeedbackFormat": "Custom ERP Status File",
+  "pageroEArchive": "<span class="hl-pagero">ACTIVE (Conservazione Sostitutiva - 10 Years)</span>"
+}`
+        }
+      ];
     }
 
-    function buildArrowSvg(direction) {
-      if (direction === "reverse") {
-        // Left-pointing flowing dotted arrow (return path)
-        return `
-          <span class="connector-dir-label">Return</span>
-          <svg viewBox="0 0 36 18" aria-hidden="true">
-            <line class="flow-line" x1="3" y1="9" x2="33" y2="9"></line>
-            <polyline class="flow-head" points="9 4 3 9 9 14"></polyline>
-          </svg>
-        `;
+    function setScenario(mode) {
+      state.scenario = mode;
+      document.body.classList.toggle("error-mode", mode === "error");
+      document.getElementById("eyebrow-text").textContent =
+        mode === "error" ? "Custom ERP → Pagero → SdI Rejection (Scarto)" : "Custom ERP → Pagero → SdI Clearance Flow";
+
+      if (mode === "error" && state.activeStep < 2) {
+        state.activeStep = 2;
       }
-      // Right-pointing flowing dotted arrow (forward path)
-      return `
-        <svg viewBox="0 0 36 18" aria-hidden="true">
-          <line class="flow-line" x1="3" y1="9" x2="33" y2="9"></line>
-          <polyline class="flow-head" points="27 4 33 9 27 14"></polyline>
-        </svg>
-      `;
-    }
-
-    function render() {
-      const data = scenarios[currentScenario];
-      const steps = data.steps;
-
-      document.body.classList.toggle("error-mode", currentScenario === "error");
-      eyebrowText.textContent = data.eyebrow;
-      subtitleText.textContent = data.subtitle;
-
-      btnHappy.className = `scenario-btn ${currentScenario === "happy" ? "active-happy" : ""}`;
-      btnError.className = `scenario-btn ${currentScenario === "error" ? "active-error" : ""}`;
-
-      const pct = ((activeIndex + 1) / steps.length) * 100;
-      progressFill.style.width = `${pct}%`;
-
-      pipelineEl.innerHTML = steps
-        .map((step, idx) => {
-          const isActive = idx === activeIndex;
-          const isCompleted = idx < activeIndex;
-          const isErrorNode = step.isError;
-
-          // Determine connector after this node
-          let connectorHtml = "";
-          if (idx < steps.length - 1) {
-            const nextStep = steps[idx + 1];
-            const dir = nextStep.connectorDir === "reverse" ? "reverse" : "forward";
-            const isLit = idx < activeIndex || (dir === "reverse" && (idx === activeIndex || idx + 1 === activeIndex));
-
-            connectorHtml = `
-              <div class="connector ${isLit ? "lit" : ""} ${dir === "reverse" ? "reverse" : ""}" aria-hidden="true">
-                ${buildArrowSvg(dir)}
-              </div>
-            `;
-          }
-
-          return `
-            <button
-              type="button"
-              class="step-node ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""} ${isErrorNode ? "error-node" : ""}"
-              role="tab"
-              aria-selected="${isActive}"
-              onclick="handleUserSelect(${idx})"
-            >
-              <div class="node-top">
-                <span class="step-badge">Stage 0${step.id}</span>
-                <span class="node-icon">${step.icon}</span>
-              </div>
-              <span class="step-title">${step.title}</span>
-              <span class="step-summary">${step.shortDesc}</span>
-            </button>
-            ${connectorHtml}
-          `;
-        })
-        .join("");
-
-      const current = steps[activeIndex];
-      inspectorEl.className = `inspector ${current.isError ? "error-panel" : ""}`;
-      inspectorEl.innerHTML = `
-        <div class="inspector-main">
-          <div class="inspector-header">
-            <h2>${current.title}</h2>
-            <span class="pill ${current.isError ? "error-pill" : ""}">${current.tag}</span>
-          </div>
-          <p>${current.detail}</p>
-          <ul class="meta-list">
-            ${current.specs
-              .map(
-                (spec) => `
-              <li>
-                <span class="meta-label">${spec.label}</span>
-                <span class="meta-value">${spec.value}</span>
-              </li>`
-              )
-              .join("")}
-          </ul>
-        </div>
-        <div class="code-wrapper">
-          <div class="code-header">
-            <span>${current.fileLabel}</span>
-            <button type="button" class="copy-btn" id="copyPayloadBtn" onclick="copyPayload()">Copy</button>
-          </div>
-          <div class="inspector-code" aria-label="Sample Payload">${highlightSyntax(current.sample)}</div>
-        </div>
-      `;
-
-      prevBtn.disabled = activeIndex === 0;
-      nextBtn.disabled = activeIndex === steps.length - 1;
-    }
-
-    function switchScenario(mode) {
-      stopAutoPlay();
-      currentScenario = mode;
-      activeIndex = mode === "error" ? 2 : 0; // Jump directly to SdI Rejection when switching to error mode
       render();
     }
 
     function selectStep(index) {
-      activeIndex = index;
+      stopAutoplay();
+      state.activeStep = index;
       render();
     }
 
-    function handleUserSelect(index) {
-      stopAutoPlay();
-      selectStep(index);
+    function step(delta) {
+      stopAutoplay();
+      const steps = getSteps();
+      const next = state.activeStep + delta;
+      if (next >= 0 && next < steps.length) {
+        state.activeStep = next;
+        render();
+      }
     }
 
-    function copyPayload() {
-      const current = scenarios[currentScenario].steps[activeIndex];
-      navigator.clipboard.writeText(current.sample).then(() => {
-        const btn = document.getElementById("copyPayloadBtn");
-        if (btn) {
-          btn.textContent = "Copied!";
-          btn.classList.add("copied");
-          setTimeout(() => {
-            btn.textContent = "Copy";
-            btn.classList.remove("copied");
-          }, 1600);
-        }
+    function handleErrorSelect(code) {
+      state.selectedError = code;
+      render();
+    }
+
+    function copyCode() {
+      const preEl = document.getElementById("code-content");
+      const btnEl = document.getElementById("btn-copy-code");
+      if (!preEl || !btnEl) return;
+
+      navigator.clipboard.writeText(preEl.innerText).then(() => {
+        btnEl.textContent = "✓ Copied";
+        btnEl.classList.add("copied");
+        setTimeout(() => {
+          btnEl.textContent = "Copy";
+          btnEl.classList.remove("copied");
+        }, 1800);
       });
     }
 
-    function stopAutoPlay() {
-      if (autoPlayTimer) {
-        clearInterval(autoPlayTimer);
-        autoPlayTimer = null;
-        autoPlayBtn.classList.remove("playing");
-        autoPlayBtn.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          <span>Auto-Play Flow</span>
-        `;
+    function toggleAutoplay() {
+      if (state.timer) {
+        stopAutoplay();
+      } else {
+        const btn = document.getElementById("btn-autoplay");
+        btn.classList.add("playing");
+        btn.textContent = "⏸ Pause Flow";
+        state.timer = setInterval(() => {
+          const steps = getSteps();
+          state.activeStep = (state.activeStep + 1) % steps.length;
+          render();
+        }, 3000);
       }
     }
 
-    function toggleAutoPlay() {
-      if (autoPlayTimer) {
-        stopAutoPlay();
-        return;
+    function stopAutoplay() {
+      if (state.timer) {
+        clearInterval(state.timer);
+        state.timer = null;
+        const btn = document.getElementById("btn-autoplay");
+        btn.classList.remove("playing");
+        btn.textContent = "▶ Auto-Play Flow";
       }
-      autoPlayBtn.classList.add("playing");
-      autoPlayBtn.innerHTML = `
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-        <span>Pause Tour</span>
+    }
+
+    function render() {
+      const steps = getSteps();
+      const current = steps[state.activeStep];
+      const isErrorMode = state.scenario === "error";
+
+      document.getElementById("btn-happy").className =
+        `scenario-btn ${!isErrorMode ? "active-happy" : ""}`;
+      document.getElementById("btn-error").className =
+        `scenario-btn ${isErrorMode ? "active-error" : ""}`;
+
+      const pct = ((state.activeStep + 1) / steps.length) * 100;
+      document.getElementById("progress-fill").style.width = `${pct}%`;
+      document.getElementById("btn-prev").disabled = state.activeStep === 0;
+      document.getElementById("btn-next").disabled = state.activeStep === steps.length - 1;
+
+      document.getElementById("pipeline").innerHTML = steps
+        .map((s, idx) => {
+          const isActive = idx === state.activeStep;
+          const isCompleted = idx < state.activeStep;
+          const errClass = s.isErrorNode ? "error-node" : "";
+          const pageroClass = s.isPageroNode ? "pagero-node" : "";
+          return `
+            <button class="step-node ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""} ${errClass} ${pageroClass}" onclick="selectStep(${idx})">
+              <div class="node-top">
+                <span class="step-badge">${s.badge}</span>
+                <span class="node-icon">${s.icon}</span>
+              </div>
+              <div class="step-title">${s.title}</div>
+              <div class="step-summary">${s.summary}</div>
+            </button>
+          `;
+        })
+        .join("");
+
+      const errObj = SDI_ERRORS[state.selectedError];
+      const dropdownMarkup = current.showErrorDropdown
+        ? `
+          <div class="error-selector-panel">
+            <label for="sdi-error-dropdown">Select SdI Rejection Code (Codice di Scarto)</label>
+            <select id="sdi-error-dropdown" class="error-select" onchange="handleErrorSelect(this.value)">
+              ${Object.values(SDI_ERRORS)
+                .map(
+                  (e) =>
+                    `<option value="${e.code}" ${e.code === state.selectedError ? "selected" : ""}>${e.title}</option>`
+                )
+                .join("")}
+            </select>
+            <div class="fix-tip"><strong>Remediation via Custom ERP &amp; Pagero:</strong> ${errObj.fix}</div>
+          </div>
+        `
+        : "";
+
+      let pillClass = "";
+      let calloutClass = "";
+      if (current.isErrorNode) {
+        pillClass = "error";
+        calloutClass = "error";
+      } else if (current.isPageroNode) {
+        pillClass = "pagero";
+        calloutClass = "pagero";
+      }
+
+      document.getElementById("inspector").innerHTML = `
+        <div>
+          <div class="inspector-header">
+            <h2 class="inspector-title">${current.badge}: ${current.title}</h2>
+            <span class="status-pill ${pillClass}">${current.status}</span>
+          </div>
+
+          <div class="description-callout ${calloutClass}">
+            <span class="description-label">Description</span>
+            <p class="description-text">${current.description}</p>
+          </div>
+
+          <p class="tech-note">${current.tech}</p>
+          ${dropdownMarkup}
+        </div>
+
+        <div class="code-pane">
+          <div class="code-header">
+            <span>${current.codeTitle}</span>
+            <div class="code-header-right">
+              <span>Custom ERP → Pagero → FatturaPA v1.2.2</span>
+              <button id="btn-copy-code" class="btn-copy" onclick="copyCode()">Copy</button>
+            </div>
+          </div>
+          <pre id="code-content">${current.code}</pre>
+        </div>
       `;
-      const totalSteps = scenarios[currentScenario].steps.length;
-      autoPlayTimer = setInterval(() => {
-        const next = (activeIndex + 1) % totalSteps;
-        selectStep(next);
-      }, 3200);
     }
-
-    btnHappy.addEventListener("click", () => switchScenario("happy"));
-    btnError.addEventListener("click", () => switchScenario("error"));
-    autoPlayBtn.addEventListener("click", toggleAutoPlay);
-
-    prevBtn.addEventListener("click", () => {
-      stopAutoPlay();
-      if (activeIndex > 0) selectStep(activeIndex - 1);
-    });
-
-    nextBtn.addEventListener("click", () => {
-      stopAutoPlay();
-      const totalSteps = scenarios[currentScenario].steps.length;
-      if (activeIndex < totalSteps - 1) selectStep(activeIndex + 1);
-    });
 
     document.addEventListener("keydown", (e) => {
-      const totalSteps = scenarios[currentScenario].steps.length;
-      if (e.key === "ArrowLeft" && activeIndex > 0) {
-        stopAutoPlay();
-        selectStep(activeIndex - 1);
-      }
-      if (e.key === "ArrowRight" && activeIndex < totalSteps - 1) {
-        stopAutoPlay();
-        selectStep(activeIndex + 1);
-      }
+      if (e.target.tagName === "SELECT") return;
+      if (e.key === "ArrowRight") step(1);
+      if (e.key === "ArrowLeft") step(-1);
     });
 
     render();
