@@ -13,11 +13,15 @@
       --border-subtle: rgba(148, 163, 184, 0.14);
       --border-hover: rgba(148, 163, 184, 0.32);
       --border-active: #38bdf8;
+      --border-error: #f87171;
+      --bg-error: #3b1219;
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
       --text-muted: #64748b;
       --text-accent: #bae6fd;
+      --text-error-accent: #fecaca;
       --accent-glow: rgba(56, 189, 248, 0.16);
+      --error-glow: rgba(248, 113, 113, 0.18);
       --success: #34d399;
     }
 
@@ -44,9 +48,15 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    body.error-mode {
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(248, 113, 113, 0.09) 0%, transparent 55%),
+        radial-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+    }
+
     .container {
       width: 100%;
-      max-width: 1160px;
+      max-width: 1180px;
     }
 
     /* Header & Top Bar */
@@ -55,7 +65,7 @@
       justify-content: space-between;
       align-items: flex-end;
       gap: 1rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 1.5rem;
       flex-wrap: wrap;
     }
 
@@ -69,6 +79,11 @@
       text-transform: uppercase;
       color: var(--border-active);
       margin-bottom: 0.45rem;
+      transition: color 0.2s ease;
+    }
+
+    body.error-mode .eyebrow {
+      color: var(--border-error);
     }
 
     .eyebrow-dot {
@@ -77,6 +92,12 @@
       border-radius: 50%;
       background-color: var(--border-active);
       box-shadow: 0 0 8px var(--border-active);
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    body.error-mode .eyebrow-dot {
+      background-color: var(--border-error);
+      box-shadow: 0 0 8px var(--border-error);
     }
 
     h1 {
@@ -95,7 +116,49 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    /* Scenario Toggle Segmented Control */
+    .scenario-switch {
+      display: inline-flex;
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .scenario-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.42rem 0.8rem;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .scenario-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .scenario-btn.active-happy {
+      background: rgba(56, 189, 248, 0.16);
+      color: #38bdf8;
+      box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35);
+    }
+
+    .scenario-btn.active-error {
+      background: rgba(248, 113, 113, 0.16);
+      color: #f87171;
+      box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.38);
     }
 
     .btn-ghost {
@@ -106,8 +169,8 @@
       color: var(--text-primary);
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
-      padding: 0.5rem 0.9rem;
-      font-size: 0.82rem;
+      padding: 0.48rem 0.9rem;
+      font-size: 0.8rem;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.16s ease;
@@ -124,6 +187,12 @@
       background: rgba(56, 189, 248, 0.1);
     }
 
+    body.error-mode .btn-ghost.playing {
+      border-color: var(--border-error);
+      color: var(--border-error);
+      background: rgba(248, 113, 113, 0.1);
+    }
+
     /* Progress Bar */
     .progress-track {
       width: 100%;
@@ -138,7 +207,11 @@
       height: 100%;
       background: linear-gradient(90deg, #0284c7, #38bdf8);
       border-radius: 999px;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+    }
+
+    body.error-mode .progress-fill {
+      background: linear-gradient(90deg, #dc2626, #f87171);
     }
 
     /* Horizontal Pipeline */
@@ -147,19 +220,19 @@
       flex-direction: row;
       align-items: stretch;
       justify-content: space-between;
-      gap: 0.45rem;
+      gap: 0.25rem;
       overflow-x: auto;
       padding: 0.35rem 0.1rem 1rem;
     }
 
     .step-node {
-      flex: 1 1 190px;
-      min-width: 185px;
+      flex: 1 1 185px;
+      min-width: 180px;
       background: rgba(17, 24, 39, 0.85);
       backdrop-filter: blur(8px);
       border: 1px solid var(--border-subtle);
       border-radius: 14px;
-      padding: 1.1rem 1rem;
+      padding: 1.05rem 0.95rem;
       text-align: left;
       color: var(--text-primary);
       cursor: pointer;
@@ -167,7 +240,7 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.45rem;
     }
 
     .step-node:hover {
@@ -180,10 +253,24 @@
       border-color: rgba(56, 189, 248, 0.28);
     }
 
+    body.error-mode .step-node.completed {
+      border-color: rgba(248, 113, 113, 0.28);
+    }
+
     .step-node.active {
       background: linear-gradient(165deg, rgba(14, 58, 92, 0.92), rgba(12, 45, 72, 0.95));
       border: 1.5px solid var(--border-active);
       box-shadow: 0 8px 28px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .step-node.error-node.active {
+      background: linear-gradient(165deg, rgba(69, 18, 27, 0.94), rgba(48, 12, 19, 0.96));
+      border: 1.5px solid var(--border-error);
+      box-shadow: 0 8px 28px var(--error-glow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .step-node.error-node:not(.active) {
+      border-color: rgba(248, 113, 113, 0.25);
     }
 
     .node-top {
@@ -205,8 +292,16 @@
       color: #7dd3fc;
     }
 
+    body.error-mode .step-node.completed .step-badge {
+      color: #fca5a5;
+    }
+
     .step-node.active .step-badge {
       color: var(--border-active);
+    }
+
+    .step-node.error-node.active .step-badge {
+      color: var(--border-error);
     }
 
     .node-icon {
@@ -226,15 +321,20 @@
       color: var(--border-active);
     }
 
+    .step-node.error-node.active .node-icon {
+      background: rgba(248, 113, 113, 0.18);
+      color: var(--border-error);
+    }
+
     .step-title {
-      font-size: 0.98rem;
+      font-size: 0.96rem;
       font-weight: 700;
       letter-spacing: -0.01em;
     }
 
     .step-summary {
-      font-size: 0.8rem;
-      line-height: 1.42;
+      font-size: 0.79rem;
+      line-height: 1.4;
       color: var(--text-secondary);
     }
 
@@ -242,24 +342,96 @@
       color: var(--text-accent);
     }
 
-    /* Animated Connector Arrows */
-    .connector {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #334155;
-      flex-shrink: 0;
-      padding: 0 0.05rem;
-      transition: color 0.25s ease;
+    .step-node.error-node.active .step-summary {
+      color: var(--text-error-accent);
     }
 
-    .connector.lit {
-      color: var(--border-active);
+    /* Flowing Dotted Line Connector Arrows */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 34px;
+      position: relative;
+    }
+
+    .connector-dir-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+      opacity: 0.85;
+    }
+
+    .connector.reverse .connector-dir-label {
+      color: #f87171;
     }
 
     .connector svg {
-      width: 20px;
-      height: 20px;
+      width: 34px;
+      height: 18px;
+      overflow: visible;
+    }
+
+    .flow-line {
+      stroke: #475569;
+      stroke-width: 2;
+      stroke-dasharray: 3.5 3.5;
+      stroke-linecap: round;
+      animation: flowForward 0.85s linear infinite;
+      transition: stroke 0.25s ease;
+    }
+
+    .flow-head {
+      stroke: #475569;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      transition: stroke 0.25s ease;
+    }
+
+    /* Lit / Active Forward Flow */
+    .connector.lit .flow-line,
+    .connector.lit .flow-head {
+      stroke: #38bdf8;
+    }
+
+    /* Error / Reverse Flow */
+    body.error-mode .connector.lit .flow-line,
+    body.error-mode .connector.lit .flow-head {
+      stroke: #f87171;
+    }
+
+    .connector.reverse .flow-line {
+      stroke: #f87171;
+      animation: flowBackward 0.85s linear infinite;
+    }
+
+    .connector.reverse .flow-head {
+      stroke: #f87171;
+    }
+
+    @keyframes flowForward {
+      from {
+        stroke-dashoffset: 14;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes flowBackward {
+      from {
+        stroke-dashoffset: 0;
+      }
+      to {
+        stroke-dashoffset: 14;
+      }
     }
 
     /* Detail Inspector Panel */
@@ -274,6 +446,10 @@
       gap: 1.75rem;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
       animation: fadeSlide 0.22s ease-out;
+    }
+
+    .inspector.error-panel {
+      border-color: rgba(248, 113, 113, 0.28);
     }
 
     @keyframes fadeSlide {
@@ -309,6 +485,12 @@
       background: rgba(56, 189, 248, 0.12);
       color: var(--border-active);
       border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .pill.error-pill {
+      background: rgba(248, 113, 113, 0.14);
+      color: var(--border-error);
+      border: 1px solid rgba(248, 113, 113, 0.35);
     }
 
     .inspector-main p {
@@ -347,6 +529,10 @@
       font-size: 0.82rem;
       color: var(--text-accent);
       font-weight: 500;
+    }
+
+    .inspector.error-panel .meta-value {
+      color: var(--text-error-accent);
     }
 
     /* Code Box with Header & Copy */
@@ -404,6 +590,7 @@
 
     /* Syntax Highlights */
     .tok-tag { color: #38bdf8; }
+    .tok-err { color: #f87171; font-weight: 600; }
     .tok-key { color: #7dd3fc; }
     .tok-str { color: #34d399; }
     .tok-num { color: #fbbf24; }
@@ -460,6 +647,11 @@
       background: var(--bg-surface-hover);
     }
 
+    body.error-mode button.nav-btn:hover:not(:disabled) {
+      border-color: var(--border-error);
+      color: var(--border-error);
+    }
+
     button.nav-btn:disabled {
       opacity: 0.38;
       cursor: not-allowed;
@@ -476,11 +668,22 @@
   <div class="container">
     <div class="top-bar">
       <div>
-        <div class="eyebrow"><span class="eyebrow-dot"></span> Architecture Walkthrough</div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span> <span id="eyebrowText">Standard Clearance Flow</span></div>
         <h1>Italian E-Invoicing Flow (FatturaPA)</h1>
-        <p class="subtitle">Select any stage to inspect schema transformations, SdI clearance rules, and archiving compliance.</p>
+        <p class="subtitle" id="subtitleText">Select any stage or toggle scenarios to inspect schema transformations, SdI clearance, and rejection handling.</p>
       </div>
       <div class="header-actions">
+        <div class="scenario-switch" role="group" aria-label="Flow Scenario">
+          <button type="button" class="scenario-btn active-happy" id="btnHappy">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Cleared (EC01)
+          </button>
+          <button type="button" class="scenario-btn" id="btnError">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            SdI Rejection (Scarto)
+          </button>
+        </div>
+
         <button class="btn-ghost" id="autoPlayBtn" type="button">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
           <span>Auto-Play Flow</span>
@@ -513,112 +716,250 @@
       transform: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>`,
       clearance: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>`,
       delivery: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`,
-      archive: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`
+      archive: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
+      alert: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+      undo: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>`
     };
 
-    const steps = [
-      {
-        id: 1,
-        icon: icons.erp,
-        title: "1. Extraction",
-        shortDesc: "Customer ERP generates custom format",
-        tag: "Source System",
-        fileLabel: "erp-export.json",
-        detail: "The supplier's ERP system extracts invoice header, line items, tax rates, and customer master data into its native export format (IDoc, JSON, CSV, or proprietary XML) and transmits it securely to Pagero.",
-        specs: [
-          { label: "Protocol", value: "SFTP / REST API" },
-          { label: "Input Format", value: "ERP Native (IDoc / JSON)" },
-          { label: "Trigger", value: "Invoice Posting Event" }
-        ],
-        sample: `{
+    const scenarios = {
+      happy: {
+        eyebrow: "Standard Clearance Flow (Happy Path)",
+        subtitle: "Select any stage or switch to SdI Rejection to inspect schema transformations, clearance, and archiving.",
+        steps: [
+          {
+            id: 1,
+            icon: icons.erp,
+            title: "1. Extraction",
+            shortDesc: "Customer ERP generates custom format",
+            tag: "Source System",
+            fileLabel: "erp-export.json",
+            isError: false,
+            connectorDir: "forward",
+            detail: "The supplier's ERP system extracts invoice header, line items, tax rates, and customer master data into its native export format (IDoc, JSON, CSV, or proprietary XML) and transmits it securely to Pagero.",
+            specs: [
+              { label: "Protocol", value: "SFTP / REST API" },
+              { label: "Input Format", value: "ERP Native (IDoc / JSON)" },
+              { label: "Trigger", value: "Invoice Posting Event" }
+            ],
+            sample: `{
   "invoiceNumber": "INV-2026-0841",
   "issueDate": "2026-11-11",
   "currency": "EUR",
   "vatRate": 22.0,
   "totalAmount": 1220.00
 }`
-      },
-      {
-        id: 2,
-        icon: icons.transform,
-        title: "2. Transformation",
-        shortDesc: "Pagero maps to FatturaPA XML",
-        tag: "Core Mapping",
-        fileLabel: "IT01234567890_00001.xml",
-        detail: "Pagero normalises the raw ERP payload, enriches missing Italian fiscal codes (Natura IVA, TipoDocumento), applies a qualified digital signature (CAdES-BES / XAdES), and outputs schema-valid FatturaPA v1.2 XML.",
-        specs: [
-          { label: "Standard", value: "FatturaPA XML v1.2" },
-          { label: "Signature", value: "XAdES-BES / CAdES" },
-          { label: "Pre-Check", value: "XSD & Business Rules" }
-        ],
-        sample: `<FatturaElettronicaHeader>
+          },
+          {
+            id: 2,
+            icon: icons.transform,
+            title: "2. Transformation",
+            shortDesc: "Pagero maps to FatturaPA XML",
+            tag: "Core Mapping",
+            fileLabel: "IT01234567890_00001.xml",
+            isError: false,
+            connectorDir: "forward",
+            detail: "Pagero normalises the raw ERP payload, enriches missing Italian fiscal codes (Natura IVA, TipoDocumento), applies a qualified digital signature (CAdES-BES / XAdES), and outputs schema-valid FatturaPA v1.2 XML.",
+            specs: [
+              { label: "Standard", value: "FatturaPA XML v1.2" },
+              { label: "Signature", value: "XAdES-BES / CAdES" },
+              { label: "Pre-Check", value: "XSD & Business Rules" }
+            ],
+            sample: `<FatturaElettronicaHeader>
   <DatiTrasmissione>
     <FormatoTrasmissione>FPR12</FormatoTrasmissione>
     <CodiceDestinatario>SUBM70N</CodiceDestinatario>
   </DatiTrasmissione>
 </FatturaElettronicaHeader>`
-      },
-      {
-        id: 3,
-        icon: icons.clearance,
-        title: "3. Clearance",
-        shortDesc: "Pagero sends XML to SdI for validation",
-        tag: "Tax Authority",
-        fileLabel: "RC_9841204912.xml",
-        detail: "Pagero submits the signed XML to Italy's Sistema di Interscambio (SdI). SdI verifies fiscal integrity, VAT numbers, and uniqueness before issuing either a Delivery Receipt (Ricevuta di Consegna) or Rejection Notice (Notifica di Scarto).",
-        specs: [
-          { label: "Gateway", value: "Sistema di Interscambio (SdI)" },
-          { label: "Response Window", value: "Real-time up to 5 days" },
-          { label: "Outcome", value: "Ricevuta di Consegna (RC)" }
-        ],
-        sample: `<RicevutaConsegna>
+          },
+          {
+            id: 3,
+            icon: icons.clearance,
+            title: "3. Clearance",
+            shortDesc: "Pagero sends XML to SdI for validation",
+            tag: "Tax Authority",
+            fileLabel: "RC_9841204912.xml",
+            isError: false,
+            connectorDir: "forward",
+            detail: "Pagero submits the signed XML to Italy's Sistema di Interscambio (SdI). SdI verifies fiscal integrity, VAT numbers, and uniqueness before issuing a Delivery Receipt (Ricevuta di Consegna).",
+            specs: [
+              { label: "Gateway", value: "Sistema di Interscambio (SdI)" },
+              { label: "Response Window", value: "Real-time up to 5 days" },
+              { label: "Outcome", value: "Ricevuta di Consegna (RC)" }
+            ],
+            sample: `<RicevutaConsegna>
   <IdentificativoSdI>9841204912</IdentificativoSdI>
   <DataOraRicezione>2026-11-11T21:54:10Z</DataOraRicezione>
   <Esito>EC01 - Accepted</Esito>
 </RicevutaConsegna>`
-      },
-      {
-        id: 4,
-        icon: icons.delivery,
-        title: "4. Delivery",
-        shortDesc: "SdI routes to buyer via Codice Destinatario",
-        tag: "Buyer Routing",
-        fileLabel: "sdi-routing.log",
-        detail: "Once cleared, SdI automatically routes the official invoice to the buyer's registered channel using their 7-character Codice Destinatario or certified PEC email address, while Pagero syncs status updates back to the seller's ERP.",
-        specs: [
-          { label: "Primary Channel", value: "7-char Codice Destinatario" },
-          { label: "Fallback", value: "Certified PEC Email" },
-          { label: "ERP Sync", value: "Status Webhook / Ack" }
-        ],
-        sample: `{
+          },
+          {
+            id: 4,
+            icon: icons.delivery,
+            title: "4. Delivery",
+            shortDesc: "SdI routes to buyer via Codice Destinatario",
+            tag: "Buyer Routing",
+            fileLabel: "sdi-routing.log",
+            isError: false,
+            connectorDir: "forward",
+            detail: "Once cleared, SdI automatically routes the official invoice to the buyer's registered channel using their 7-character Codice Destinatario or certified PEC email address, while Pagero syncs status updates back to the seller's ERP.",
+            specs: [
+              { label: "Primary Channel", value: "7-char Codice Destinatario" },
+              { label: "Fallback", value: "Certified PEC Email" },
+              { label: "ERP Sync", value: "Status Webhook / Ack" }
+            ],
+            sample: `{
   "codiceDestinatario": "SUBM70N",
   "channel": "Accredited SdI Endpoint",
   "deliveryStatus": "DELIVERED",
   "erpSync": "SUCCESS"
 }`
-      },
-      {
-        id: 5,
-        icon: icons.archive,
-        title: "5. Archiving",
-        shortDesc: "10-year legal storage (Conservazione)",
-        tag: "Compliance",
-        fileLabel: "PdV-2026-0841.manifest",
-        detail: "Both the signed FatturaPA XML and all SdI clearance receipts are sealed into compliant Italian digital archiving (Conservazione Sostitutiva) with qualified timestamps for the mandatory 10-year retention period.",
-        specs: [
-          { label: "Retention Period", value: "10 Years Mandatory" },
-          { label: "Framework", value: "AgID Conservazione" },
-          { label: "Integrity", value: "SHA-256 + Qualified Timestamp" }
-        ],
-        sample: `{
+          },
+          {
+            id: 5,
+            icon: icons.archive,
+            title: "5. Archiving",
+            shortDesc: "10-year legal storage (Conservazione)",
+            tag: "Compliance",
+            fileLabel: "PdV-2026-0841.manifest",
+            isError: false,
+            connectorDir: "forward",
+            detail: "Both the signed FatturaPA XML and all SdI clearance receipts are sealed into compliant Italian digital archiving (Conservazione Sostitutiva) with qualified timestamps for the mandatory 10-year retention period.",
+            specs: [
+              { label: "Retention Period", value: "10 Years Mandatory" },
+              { label: "Framework", value: "AgID Conservazione" },
+              { label: "Integrity", value: "SHA-256 + Qualified Timestamp" }
+            ],
+            sample: `{
   "archivePackage": "PdV-2026-0841.zip",
   "digestAlgorithm": "SHA-256",
   "retentionYears": 10,
   "validUntil": "2036-11-11"
 }`
+          }
+        ]
+      },
+      error: {
+        eyebrow: "Exception Handling Flow (Notifica di Scarto)",
+        subtitle: "Simulates an SdI fiscal validation failure—notice the reverse rejection return path to Pagero and the customer ERP.",
+        steps: [
+          {
+            id: 1,
+            icon: icons.erp,
+            title: "1. Extraction",
+            shortDesc: "ERP exports invoice with invalid Partita IVA",
+            tag: "Source Defect",
+            fileLabel: "erp-export-invalid.json",
+            isError: false,
+            connectorDir: "forward",
+            detail: "The supplier's ERP exports an invoice containing an inactive buyer VAT number (Partita IVA) or mismatched tax calculation and transmits it to Pagero.",
+            specs: [
+              { label: "Protocol", value: "SFTP / REST API" },
+              { label: "Data Issue", value: "Inactive Buyer Partita IVA" },
+              { label: "Trigger", value: "Invoice Posting Event" }
+            ],
+            sample: `{
+  "invoiceNumber": "INV-2026-0842",
+  "buyerVat": "IT99999999999",
+  "vatRate": 22.0,
+  "totalAmount": 2440.00
+}`
+          },
+          {
+            id: 2,
+            icon: icons.transform,
+            title: "2. Transformation",
+            shortDesc: "Pagero maps & signs FatturaPA XML",
+            tag: "Core Mapping",
+            fileLabel: "IT01234567890_00002.xml",
+            isError: false,
+            connectorDir: "forward",
+            detail: "Pagero converts the payload into valid XSD structure and signs the FatturaPA XML. Because VAT registry status is verified against Italy's Anagrafe Tributaria, the payload proceeds to SdI.",
+            specs: [
+              { label: "XSD Schema", value: "Valid FatturaPA v1.2" },
+              { label: "Signature", value: "XAdES-BES Applied" },
+              { label: "Next Hop", value: "Submitted to SdI" }
+            ],
+            sample: `<CessionarioCommittente>
+  <DatiAnagrafici>
+    <IdFiscaleIVA>
+      <IdCodice>99999999999</IdCodice>
+    </IdFiscaleIVA>
+  </DatiAnagrafici>
+</CessionarioCommittente>`
+          },
+          {
+            id: 3,
+            icon: icons.alert,
+            title: "3. SdI Rejection",
+            shortDesc: "SdI blocks invoice & issues Notifica di Scarto",
+            tag: "Validation Failed",
+            fileLabel: "NS_9841204999.xml",
+            isError: true,
+            connectorDir: "reverse",
+            detail: "SdI rejects the invoice during fiscal cross-checks (Error 00305: Invalid Partita IVA). The invoice is legally considered never issued, is NOT delivered to the buyer, and a Notifica di Scarto (NS) is returned.",
+            specs: [
+              { label: "SdI Notice", value: "Notifica di Scarto (NS)" },
+              { label: "Error Code", value: "00305 - Invalid VAT ID" },
+              { label: "Legal Status", value: "Unissued (Must Re-send)" }
+            ],
+            sample: `<NotificaScarto>
+  <IdentificativoSdI>9841204999</IdentificativoSdI>
+  <ListaErrori>
+    <Errore>
+      <Codice>00305</Codice>
+      <Descrizione>IdFiscaleIVA non valido</Descrizione>
+    </Errore>
+  </ListaErrori>
+</NotificaScarto>`
+          },
+          {
+            id: 4,
+            icon: icons.undo,
+            title: "4. Error Return",
+            shortDesc: "Pagero translates error & alerts ERP",
+            tag: "Reverse Sync",
+            fileLabel: "webhook-rejection.json",
+            isError: true,
+            connectorDir: "reverse",
+            detail: "Pagero ingests the XML rejection notice, translates SdI error code 00305 into an actionable human-readable message, and pushes a real-time failure webhook back to the customer's ERP.",
+            specs: [
+              { label: "Flow Direction", value: "SdI → Pagero → ERP" },
+              { label: "Action", value: "ERP Status Flagged: REJECTED" },
+              { label: "Remediation", value: "Fix VAT & Re-submit (5-day rule)" }
+            ],
+            sample: `{
+  "invoiceNumber": "INV-2026-0842",
+  "status": "REJECTED_BY_SDI",
+  "errorCode": "00305",
+  "actionRequired": "Correct buyer VAT & resend"
+}`
+          },
+          {
+            id: 5,
+            icon: icons.archive,
+            title: "5. Blocked Archiving",
+            shortDesc: "Held from legal Conservazione until re-issued",
+            tag: "Compliance Hold",
+            fileLabel: "audit-hold.log",
+            isError: true,
+            connectorDir: "forward",
+            detail: "Rejected invoices cannot enter legal Conservazione Sostitutiva. Pagero logs the rejection receipt for audit traceability and awaits a corrected re-submission using the same invoice number within 5 days.",
+            specs: [
+              { label: "Conservazione", value: "Paused (Not Legally Issued)" },
+              { label: "Audit Trail", value: "NS Receipt Logged" },
+              { label: "Re-issue Window", value: "Within 5 Calendar Days" }
+            ],
+            sample: `{
+  "invoiceNumber": "INV-2026-0842",
+  "conservazioneState": "ON_HOLD",
+  "reason": "Awaiting valid SdI Ricevuta di Consegna"
+}`
+          }
+        ]
       }
-    ];
+    };
 
+    let currentScenario = "happy";
     let activeIndex = 0;
     let autoPlayTimer = null;
 
@@ -628,6 +969,10 @@
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
     const autoPlayBtn = document.getElementById("autoPlayBtn");
+    const btnHappy = document.getElementById("btnHappy");
+    const btnError = document.getElementById("btnError");
+    const eyebrowText = document.getElementById("eyebrowText");
+    const subtitleText = document.getElementById("subtitleText");
 
     function highlightSyntax(raw) {
       const escaped = raw
@@ -636,13 +981,44 @@
         .replace(/>/g, "&gt;");
 
       return escaped
+        .replace(/(&lt;\/?(?:NotificaScarto|ListaErrori|Errore|Codice|Descrizione)&gt;)/g, '<span class="tok-err">$1</span>')
         .replace(/(&lt;\/?[a-zA-Z0-9_:-]+&gt;)/g, '<span class="tok-tag">$1</span>')
         .replace(/("[^"]+")(\s*:)/g, '<span class="tok-key">$1</span>$2')
         .replace(/(:\s*)("[^"]*")/g, '$1<span class="tok-str">$2</span>')
         .replace(/(:\s*)(\d+(\.\d+)?)/g, '$1<span class="tok-num">$2</span>');
     }
 
+    function buildArrowSvg(direction) {
+      if (direction === "reverse") {
+        // Left-pointing flowing dotted arrow (return path)
+        return `
+          <span class="connector-dir-label">Return</span>
+          <svg viewBox="0 0 36 18" aria-hidden="true">
+            <line class="flow-line" x1="3" y1="9" x2="33" y2="9"></line>
+            <polyline class="flow-head" points="9 4 3 9 9 14"></polyline>
+          </svg>
+        `;
+      }
+      // Right-pointing flowing dotted arrow (forward path)
+      return `
+        <svg viewBox="0 0 36 18" aria-hidden="true">
+          <line class="flow-line" x1="3" y1="9" x2="33" y2="9"></line>
+          <polyline class="flow-head" points="27 4 33 9 27 14"></polyline>
+        </svg>
+      `;
+    }
+
     function render() {
+      const data = scenarios[currentScenario];
+      const steps = data.steps;
+
+      document.body.classList.toggle("error-mode", currentScenario === "error");
+      eyebrowText.textContent = data.eyebrow;
+      subtitleText.textContent = data.subtitle;
+
+      btnHappy.className = `scenario-btn ${currentScenario === "happy" ? "active-happy" : ""}`;
+      btnError.className = `scenario-btn ${currentScenario === "error" ? "active-error" : ""}`;
+
       const pct = ((activeIndex + 1) / steps.length) * 100;
       progressFill.style.width = `${pct}%`;
 
@@ -650,20 +1026,26 @@
         .map((step, idx) => {
           const isActive = idx === activeIndex;
           const isCompleted = idx < activeIndex;
-          const arrowHtml =
-            idx < steps.length - 1
-              ? `<div class="connector ${idx < activeIndex ? "lit" : ""}" aria-hidden="true">
-                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                     <line x1="5" y1="12" x2="19" y2="12"></line>
-                     <polyline points="12 5 19 12 12 19"></polyline>
-                   </svg>
-                 </div>`
-              : "";
+          const isErrorNode = step.isError;
+
+          // Determine connector after this node
+          let connectorHtml = "";
+          if (idx < steps.length - 1) {
+            const nextStep = steps[idx + 1];
+            const dir = nextStep.connectorDir === "reverse" ? "reverse" : "forward";
+            const isLit = idx < activeIndex || (dir === "reverse" && (idx === activeIndex || idx + 1 === activeIndex));
+
+            connectorHtml = `
+              <div class="connector ${isLit ? "lit" : ""} ${dir === "reverse" ? "reverse" : ""}" aria-hidden="true">
+                ${buildArrowSvg(dir)}
+              </div>
+            `;
+          }
 
           return `
             <button
               type="button"
-              class="step-node ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""}"
+              class="step-node ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""} ${isErrorNode ? "error-node" : ""}"
               role="tab"
               aria-selected="${isActive}"
               onclick="handleUserSelect(${idx})"
@@ -675,17 +1057,18 @@
               <span class="step-title">${step.title}</span>
               <span class="step-summary">${step.shortDesc}</span>
             </button>
-            ${arrowHtml}
+            ${connectorHtml}
           `;
         })
         .join("");
 
       const current = steps[activeIndex];
+      inspectorEl.className = `inspector ${current.isError ? "error-panel" : ""}`;
       inspectorEl.innerHTML = `
         <div class="inspector-main">
           <div class="inspector-header">
             <h2>${current.title}</h2>
-            <span class="pill">${current.tag}</span>
+            <span class="pill ${current.isError ? "error-pill" : ""}">${current.tag}</span>
           </div>
           <p>${current.detail}</p>
           <ul class="meta-list">
@@ -713,6 +1096,13 @@
       nextBtn.disabled = activeIndex === steps.length - 1;
     }
 
+    function switchScenario(mode) {
+      stopAutoPlay();
+      currentScenario = mode;
+      activeIndex = mode === "error" ? 2 : 0; // Jump directly to SdI Rejection when switching to error mode
+      render();
+    }
+
     function selectStep(index) {
       activeIndex = index;
       render();
@@ -724,7 +1114,7 @@
     }
 
     function copyPayload() {
-      const current = steps[activeIndex];
+      const current = scenarios[currentScenario].steps[activeIndex];
       navigator.clipboard.writeText(current.sample).then(() => {
         const btn = document.getElementById("copyPayloadBtn");
         if (btn) {
@@ -760,12 +1150,15 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
         <span>Pause Tour</span>
       `;
+      const totalSteps = scenarios[currentScenario].steps.length;
       autoPlayTimer = setInterval(() => {
-        const next = (activeIndex + 1) % steps.length;
+        const next = (activeIndex + 1) % totalSteps;
         selectStep(next);
       }, 3200);
     }
 
+    btnHappy.addEventListener("click", () => switchScenario("happy"));
+    btnError.addEventListener("click", () => switchScenario("error"));
     autoPlayBtn.addEventListener("click", toggleAutoPlay);
 
     prevBtn.addEventListener("click", () => {
@@ -775,15 +1168,17 @@
 
     nextBtn.addEventListener("click", () => {
       stopAutoPlay();
-      if (activeIndex < steps.length - 1) selectStep(activeIndex + 1);
+      const totalSteps = scenarios[currentScenario].steps.length;
+      if (activeIndex < totalSteps - 1) selectStep(activeIndex + 1);
     });
 
     document.addEventListener("keydown", (e) => {
+      const totalSteps = scenarios[currentScenario].steps.length;
       if (e.key === "ArrowLeft" && activeIndex > 0) {
         stopAutoPlay();
         selectStep(activeIndex - 1);
       }
-      if (e.key === "ArrowRight" && activeIndex < steps.length - 1) {
+      if (e.key === "ArrowRight" && activeIndex < totalSteps - 1) {
         stopAutoPlay();
         selectStep(activeIndex + 1);
       }
