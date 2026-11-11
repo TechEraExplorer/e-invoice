@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FatturaPA E-Invoicing Flow | Interactive Pipeline</title>
+  <style>
+    :root {
+      --bg-canvas: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #26354d;
+      --bg-active: #0c4a6e;
+      --border-default: #334155;
+      --border-active: #38bdf8;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-accent: #bae6fd;
+      --connector: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1120px;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .pipeline {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 0.75rem 0.25rem 1.25rem;
+    }
+
+    .step-node {
+      flex: 1 1 180px;
+      min-width: 175px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-default);
+      border-radius: 16px;
+      padding: 1.15rem 1rem;
+      text-align: left;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .step-node:hover {
+      background: var(--bg-card-hover);
+      border-color: #64748b;
+      transform: translateY(-2px);
+    }
+
+    .step-node.active {
+      background: var(--bg-active);
+      border: 2px solid var(--border-active);
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.18);
+    }
+
+    .step-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    .step-node.active .step-badge {
+      color: var(--border-active);
+    }
+
+    .step-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .step-summary {
+      font-size: 0.82rem;
+      line-height: 1.4;
+      color: var(--text-secondary);
+    }
+
+    .step-node.active .step-summary {
+      color: var(--text-accent);
+    }
+
+    .connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--connector);
+      flex-shrink: 0;
+      padding: 0 0.1rem;
+    }
+
+    .connector svg {
+      width: 22px;
+      height: 22px;
+      transition: color 0.2s ease;
+    }
+
+    .connector.lit {
+      color: var(--border-active);
+    }
+
+    .inspector {
+      margin-top: 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .inspector-main h2 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--border-active);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .inspector-main p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .meta-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .meta-list li {
+      background: #0f172a;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-accent);
+    }
+
+    .inspector-code {
+      background: #0b1120;
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      padding: 1rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+    }
+
+    .nav-btns {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    button.nav-btn {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    button.nav-btn:hover:not(:disabled) {
+      border-color: var(--border-active);
+      color: var(--border-active);
+    }
+
+    button.nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 820px) {
+      .inspector {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Italian E-Invoicing Flow (FatturaPA)</h1>
+      <p>Click any stage or use the Left/Right arrow keys to inspect payload formats and routing rules.</p>
+    </header>
+
+    <div class="pipeline" id="pipeline" role="tablist" aria-label="FatturaPA Process Steps"></div>
+
+    <section class="inspector" id="inspector" aria-live="polite"></section>
+
+    <div class="controls">
+      <span>Tip: Use Left and Right arrow keys to step through the workflow</span>
+      <div class="nav-btns">
+        <button class="nav-btn" id="prevBtn" type="button">Previous</button>
+        <button class="nav-btn" id="nextBtn" type="button">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const steps = [
+      {
+        id: 1,
+        title: "1. Extraction",
+        shortDesc: "Customer ERP generates custom format",
+        tag: "Source System",
+        detail: "The supplier's ERP system extracts invoice header, line items, tax rates, and customer master data into its native export format (IDoc, JSON, CSV, or proprietary XML) and transmits it securely to Pagero.",
+        specs: ["Protocol: SFTP / REST API", "Format: ERP Native (IDoc / JSON)", "Trigger: Invoice Posting"],
+        sample: `{
+  "invoiceNumber": "INV-2026-0841",
+  "issueDate": "2026-11-11",
+  "currency": "EUR",
+  "vatRate": 22.0,
+  "totalAmount": 1220.00
+}`
+      },
+      {
+        id: 2,
+        title: "2. Transformation",
+        shortDesc: "Pagero maps to FatturaPA XML",
+        tag: "Core Mapping",
+        detail: "Pagero normalises the raw ERP payload, enriches missing Italian fiscal codes (Natura IVA, TipoDocumento), applies a qualified digital signature (CAdES-BES / XAdES), and outputs schema-valid FatturaPA v1.2 XML.",
+        specs: ["Standard: FatturaPA XML 1.2", "Signature: XAdES / CAdES", "Validation: Pre-SdI Schema Check"],
+        sample: `<FatturaElettronicaHeader>
+  <DatiTrasmissione>
+    <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+    <CodiceDestinatario>SUBM70N</CodiceDestinatario>
+  </DatiTrasmissione>
+</FatturaElettronicaHeader>`
+      },
+      {
+        id: 3,
+        title: "3. Clearance",
+        shortDesc: "Pagero sends XML to SdI for validation",
+        tag: "Tax Authority",
+        detail: "Pagero submits the signed XML to Italy's Sistema di Interscambio (SdI). SdI verifies fiscal integrity, VAT numbers, and uniqueness before issuing either a Delivery Receipt (Ricevuta di Consegna) or Rejection Notice (Notifica di Scarto).",
+        specs: ["Gateway: Sistema di Interscambio", "SLA: Real-time / < 5 days", "Status: Cleared / Rejected"],
+        sample: `<RicevutaConsegna>
+  <IdentificativoSdI>9841204912</IdentificativoSdI>
+  <DataOraRicezione>2026-11-11T21:54:10Z</DataOraRicezione>
+  <Esito>EC01 - Accepted</Esito>
+</RicevutaConsegna>`
+      },
+      {
+        id: 4,
+        title: "4. Delivery",
+        shortDesc: "SdI routes to buyer via Codice Destinatario",
+        tag: "Buyer Routing",
+        detail: "Once cleared, SdI automatically routes the official invoice to the buyer's registered channel using their 7-character Codice Destinatario or certified PEC email address, while Pagero syncs status updates back to the seller's ERP.",
+        specs: ["Routing: 7-char Codice Destinatario", "Fallback: PEC Certified Email", "Sync: ERP Status Webhook"],
+        sample: `Routing Target: CodiceDestinatario [SUBM70N]
+Channel: Accredited SdI Endpoint
+Buyer Ack: Delivered & Logged`
+      },
+      {
+        id: 5,
+        title: "5. Archiving",
+        shortDesc: "10-year legal storage (Conservazione)",
+        tag: "Compliance",
+        detail: "Both the signed FatturaPA XML and all SdI clearance receipts are sealed into compliant Italian digital archiving (Conservazione Sostitutiva) with qualified timestamps for the mandatory 10-year retention period.",
+        specs: ["Retention: 10 Years Mandatory", "Standard: AgID Conservazione", "Audit: Timestamped Preservation"],
+        sample: `Archive Package: PdV-2026-0841.zip
+Hash (SHA-256): 8f94e2c1...9b04a
+Retention Expiry: 2036-11-11`
+      }
+    ];
+
+    let activeIndex = 1;
+
+    const pipelineEl = document.getElementById("pipeline");
+    const inspectorEl = document.getElementById("inspector");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function render() {
+      pipelineEl.innerHTML = steps
+        .map((step, idx) => {
+          const isActive = idx === activeIndex;
+          const arrowHtml =
+            idx < steps.length - 1
+              ? `<div class="connector ${idx < activeIndex ? "lit" : ""}" aria-hidden="true">
+                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                     <line x1="5" y1="12" x2="19" y2="12"></line>
+                     <polyline points="12 5 19 12 12 19"></polyline>
+                   </svg>
+                 </div>`
+              : "";
+
+          return `
+            <button
+              type="button"
+              class="step-node ${isActive ? "active" : ""}"
+              role="tab"
+              aria-selected="${isActive}"
+              onclick="selectStep(${idx})"
+            >
+              <span class="step-badge">Stage 0${step.id}</span>
+              <span class="step-title">${step.title}</span>
+              <span class="step-summary">${step.shortDesc}</span>
+            </button>
+            ${arrowHtml}
+          `;
+        })
+        .join("");
+
+      const current = steps[activeIndex];
+      inspectorEl.innerHTML = `
+        <div class="inspector-main">
+          <h2>${current.title} <span class="pill">${current.tag}</span></h2>
+          <p>${current.detail}</p>
+          <ul class="meta-list">
+            ${current.specs.map((spec) => `<li>${spec}</li>`).join("")}
+          </ul>
+        </div>
+        <div class="inspector-code" aria-label="Sample Payload">${escapeHtml(current.sample)}</div>
+      `;
+
+      prevBtn.disabled = activeIndex === 0;
+      nextBtn.disabled = activeIndex === steps.length - 1;
+    }
+
+    function selectStep(index) {
+      activeIndex = index;
+      render();
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (activeIndex > 0) selectStep(activeIndex - 1);
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (activeIndex < steps.length - 1) selectStep(activeIndex + 1);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && activeIndex > 0) selectStep(activeIndex - 1);
+      if (e.key === "ArrowRight" && activeIndex < steps.length - 1) selectStep(activeIndex + 1);
+    });
+
+    render();
+  </script>
+</body>
+</html>
