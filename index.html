@@ -634,93 +634,107 @@
   </div>
 
   <script>
-    const SDI_ERRORS = {
-      "00200": {
-        code: "00200",
-        title: "00200 — File Format / Schema Error",
-        description: "SdI could not process the submitted file because it does not conform to the required FatturaPA XML structure or transmission envelope.",
-        fix: "Correct the ERP source data or Pagero mapping so the generated FatturaPA XML passes schema and structural validation, then retransmit within five days of the Notifica di Scarto.",
-        xmlTitle: "NotificaScarto_00200.xml",
-        xml: `<NotificaScarto version="1.0">
+   const SDI_ERRORS = {
+  "00200": {
+    code: "00200",
+    title: "00200 — File Not Conforming to Format",
+    description:
+      "SdI could not process the submitted file because it does not conform to the required FatturaPA XML structure, mandatory field rules, or transmission format.",
+    fix:
+      "Correct the ERP source data or Pagero mapping so the generated FatturaPA XML passes the applicable schema and field-level validation, then retransmit within five days of the Notifica di Scarto.",
+    xmlTitle: "NotificaScarto_00200.xml",
+    xml: `<NotificaScarto version="1.0">
   <IdentificativoSdI>8492019484</IdentificativoSdI>
   <NomeFile>IT01234567890_00015.xml.p7m</NomeFile>
   <ListaErrori>
     <Errore>
       <Codice><span class="hl-err">00200</span></Codice>
-      <Descrizione><span class="hl-err">File non conforme al formato atteso</span></Descrizione>
+      <Descrizione><span class="hl-err">File non conforme al formato</span></Descrizione>
     </Errore>
   </ListaErrori>
 </NotificaScarto>`
-      },
-      "00311": {
-        code: "00311",
-        title: "00311 — Invalid Recipient Channel Code",
-        description: "The seven-character CodiceDestinatario does not identify an active recipient channel registered with SdI.",
-        fix: "Confirm the customer’s current channel code with the customer or its intermediary. For a PEC recipient, use 0000000 and populate PECDestinatario; for a cross-border/foreign recipient scenario, follow the applicable Agenzia delle Entrate routing rule.",
-        xmlTitle: "NotificaScarto_00311.xml",
-        xml: `<NotificaScarto version="1.0">
+  },
+
+  "00311": {
+    code: "00311",
+    title: "00311 — Invalid Recipient Channel Code",
+    description:
+      "The CodiceDestinatario supplied in DatiTrasmissione is not a valid recipient channel code.",
+    fix:
+      "Confirm the customer’s current seven-character channel code with the customer or its intermediary. For a PEC recipient, use 0000000 and populate PECDestinatario. For cross-border scenarios, apply the applicable Agenzia delle Entrate routing rule.",
+    xmlTitle: "NotificaScarto_00311.xml",
+    xml: `<NotificaScarto version="1.0">
   <IdentificativoSdI>8492019485</IdentificativoSdI>
   <NomeFile>IT01234567890_00015.xml</NomeFile>
   <ListaErrori>
     <Errore>
       <Codice><span class="hl-err">00311</span></Codice>
-      <Descrizione><span class="hl-err">CodiceDestinatario non valido o non attivo</span></Descrizione>
+      <Descrizione><span class="hl-err">1.1.4 CodiceDestinatario non valido</span></Descrizione>
     </Errore>
   </ListaErrori>
 </NotificaScarto>`
-      },
-      "00401": {
-        code: "00401",
-        title: "00401 — Digital Signature / Certificate Issue",
-        description: "SdI could not accept the file because the digital signature or certificate used for the transmission is invalid, unavailable, or expired.",
-        fix: "Renew or restore the signing certificate in the Pagero service configuration, regenerate the signed transmission, and retransmit within five days.",
-        xmlTitle: "NotificaScarto_00401.xml",
-        xml: `<NotificaScarto version="1.0">
+  },
+
+  "00401": {
+    code: "00401",
+    title: "00401 — Natura Present with Non-Zero VAT Rate",
+    description:
+      "A detail line contains a Natura exemption/non-taxability code even though its AliquotaIVA is greater than zero. These fields are mutually inconsistent.",
+    fix:
+      "In the ERP tax configuration or Pagero mapping, remove Natura for taxable lines with a non-zero VAT rate, or set the correct zero/exemption VAT treatment and corresponding Natura code.",
+    xmlTitle: "NotificaScarto_00401.xml",
+    xml: `<NotificaScarto version="1.0">
   <IdentificativoSdI>8492019487</IdentificativoSdI>
-  <NomeFile>IT01234567890_00015.xml.p7m</NomeFile>
+  <NomeFile>IT01234567890_00015.xml</NomeFile>
   <ListaErrori>
     <Errore>
       <Codice><span class="hl-err">00401</span></Codice>
-      <Descrizione><span class="hl-err">Certificato di firma non valido o scaduto</span></Descrizione>
+      <Descrizione><span class="hl-err">2.2.1.14 Natura presente a fronte di 2.2.1.12 AliquotaIVA diversa da zero</span></Descrizione>
     </Errore>
   </ListaErrori>
 </NotificaScarto>`
-      },
-      "00421": {
-        code: "00421",
-        title: "00421 — VAT Amount Inconsistency",
-        description: "The VAT amount declared in the invoice summary is inconsistent with the taxable base and applicable VAT rate.",
-        fix: "Correct the ERP tax calculation or rounding rules, ensure each DatiRiepilogo group reconciles, and re-export the invoice to Pagero.",
-        xmlTitle: "NotificaScarto_00421.xml",
-        xml: `<NotificaScarto version="1.0">
+  },
+
+  "00421": {
+    code: "00421",
+    title: "00421 — VAT Amount Not Calculated Correctly",
+    description:
+      "The Imposta value in a DatiRiepilogo group is not calculated according to the FatturaPA technical rules from the taxable base and applicable VAT rate.",
+    fix:
+      "Correct the ERP tax calculation or rounding rules. Ensure each DatiRiepilogo group’s Imposta reconciles with ImponibileImporto and AliquotaIVA, then re-export the invoice to Pagero.",
+    xmlTitle: "NotificaScarto_00421.xml",
+    xml: `<NotificaScarto version="1.0">
   <IdentificativoSdI>8492019486</IdentificativoSdI>
   <NomeFile>IT01234567890_00015.xml</NomeFile>
   <ListaErrori>
     <Errore>
       <Codice><span class="hl-err">00421</span></Codice>
-      <Descrizione><span class="hl-err">Imposta non coerente con ImponibileImporto e AliquotaIVA</span></Descrizione>
+      <Descrizione><span class="hl-err">2.2.2.6 Imposta non calcolato secondo le regole definite nelle specifiche tecniche</span></Descrizione>
     </Errore>
   </ListaErrori>
 </NotificaScarto>`
-      },
-      "00445": {
-        code: "00445",
-        title: "00445 — Invalid VAT Nature Code",
-        description: "The Natura value supplied for a VAT-exempt or non-taxable line is not valid for the document type, supply, or invoice date.",
-        fix: "Map the ERP tax code to the correct granular Natura value supported by the current FatturaPA specifications, then retransmit through Pagero.",
-        xmlTitle: "NotificaScarto_00445.xml",
-        xml: `<NotificaScarto version="1.0">
+  },
+
+  "00445": {
+    code: "00445",
+    title: "00445 — Generic VAT Nature Code Not Permitted",
+    description:
+      "The invoice uses a generic Natura value — N2, N3, or N6 — which is no longer permitted. A granular sub-code is required.",
+    fix:
+      "Map the ERP tax code to the correct granular Natura sub-code, such as N2.1, N3.2, or N6.1, according to the supply and applicable FatturaPA rules, then retransmit through Pagero.",
+    xmlTitle: "NotificaScarto_00445.xml",
+    xml: `<NotificaScarto version="1.0">
   <IdentificativoSdI>8492019488</IdentificativoSdI>
   <NomeFile>IT01234567890_00015.xml</NomeFile>
   <ListaErrori>
     <Errore>
       <Codice><span class="hl-err">00445</span></Codice>
-      <Descrizione><span class="hl-err">Codice Natura non valido per il documento e la data di emissione</span></Descrizione>
+      <Descrizione><span class="hl-err">Non è più ammesso il valore generico N2, N3 o N6 come codice natura dell’operazione</span></Descrizione>
     </Errore>
   </ListaErrori>
 </NotificaScarto>`
-      }
-    };
+  }
+};
 
     let state = {
       scenario: "happy",
